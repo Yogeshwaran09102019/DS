@@ -1,0 +1,504 @@
+Script started on 2021-02-23 10:01:34+05:30 [TERM="xterm-256color" TTY="/dev/tty1" COLUMNS="158" LINES="40"]
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex9[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex9[00m$ cat Hs[KashHeader.h
+#include<iostream>
+using namespace std;
+class Travel
+{
+	private:
+		int P_id;
+		string name;
+		string source;
+		string dest;
+		long amount;
+	public:
+		Travel();
+		Travel(int,string,string,string,long);
+		Travel(const Travel&);
+		void getInput();
+		void Display();
+		int getID();
+		bool operator>(Travel);
+		bool operator<(Travel);
+		bool operator==(Travel);
+		Travel operator=(Travel);
+		friend istream& operator>>(istream&,Travel&);
+		friend ostream& operator<<(ostream&,Travel&);
+	friend class HashTable;
+};
+
+class HashTable	//hashtable class (linear probing)
+{
+	private:
+			int capacity;	//bucket size
+			int size;		//filled size
+			Travel *arr;		//Travel details
+	public:
+			HashTable();						//default constructor
+			int hash(int);						//hash function
+			int insert(Travel);					//insert an element
+			int remove(int);					//remove an element
+			int search(int);					//search for an element
+			Travel findElement(int);				//find an element
+			void display();						//display all elements
+};
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex9[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex9[00m$ cat HashHeader.h[1P.h[1P.h[1P.h[1P.h[1P.h[1P.hI.hm.hp.h[C[C[Kcpp
+#include"HashHeader.h"
+Travel::Travel()
+{
+	P_id=0;
+	name="";
+	source="";
+	dest="";
+	amount=0;
+}
+
+Travel::Travel(int p,string na,string s,string d,long amt)
+{
+	P_id=p;
+	name=na;
+	source=s;
+	dest=d;
+	amount=amt;
+}
+
+Travel::Travel(const Travel&t)
+{
+	P_id=t.P_id;
+	name=t.name;
+	source=t.source;
+	dest=t.dest;
+	amount=t.amount;
+}
+
+void Travel::Display()
+{
+	cout<<P_id<<name<<source<<dest<<amount;
+}
+
+int Travel::getID()
+{
+	return P_id;
+}
+istream& operator>>(istream &in,Travel &t)
+{
+		cout<<" Enter the p Id   : ";
+        in>>t.P_id;
+        cout<<" Enter the Name : ";
+        in>>t.name;
+        cout<<" Enter the Vechicle Type : ";
+        in>>t.source;
+
+		cout<<" Enter the Vechicle Type : ";
+        in>>t.dest;
+        cout<<" Enter the Amount_Of_Toll : ";
+        in>>t.amount;
+        return in;
+}
+
+ostream& operator<<(ostream &out,Travel &t)
+{
+		cout<<" Enter the p Id   : ";
+        out<<t.P_id;
+        cout<<"\n Name : ";
+        out<<t.name;
+        cout<<"\n Source : ";
+        out<<t.source;
+		cout<<"\n Destination : ";
+        out<<t.dest;
+        cout<<"\nAmount : ";
+        out<<t.amount;
+        return out;
+}
+
+bool Travel::operator>(Travel t1)
+{
+	return (getID()>t1.getID());
+}
+bool Travel::operator<(Travel t1)
+{
+        return (getID()<t1.getID());
+}
+bool Travel::operator==(Travel j)
+{
+	if(getID()==j.getID())
+	    return true;
+	return false;
+}
+Travel Travel::operator=(Travel x)
+{
+	P_id=x.P_id;
+	name=x.name;
+	source=x.source;
+	dest=x.dest;
+	amount=x.amount;
+	return *this;
+}
+
+HashTable::HashTable()	//parameterised constructor
+{
+	capacity=10;
+	arr=new Travel[capacity];
+	size=0;
+}
+
+int HashTable::hash(int id)	//hash function
+{
+	return id%10;
+}
+
+int HashTable::insert(Travel ele)		//insert an element
+{
+	if(size==capacity)
+		return -1;	//hash table is full
+	int hval=hash(ele.getID());
+	while(arr[hval].getID()!=0 && arr[hval].getID()!=ele.getID())		//hast table is not empty in the hash value
+	{
+		hval=hash(hval+1);
+	}
+	if(arr[hval].getID()==ele.getID())
+		return -2;	//duplicates
+	arr[hval]=ele;
+	size++;
+	return 1;	//inserted
+}
+
+int HashTable::remove(int ele)			//remove an element
+{
+	if(size==0)
+		return -1;	//hash table is empty
+
+	int hval=hash(ele);
+	int flag=0;
+	while(flag<=hval)
+	{
+		if(arr[hval].getID()!=ele)	//no element in the current hashvalue(may probe is considered) or element not in the hash value
+		{
+			hval=hash(hval+1);
+			continue;
+		}
+		else	//elemnt is found
+		{
+			arr[hval].~Travel();
+			return 1;	//removed
+		}
+		flag++;
+	}
+	return -2;		//element not found
+}
+
+int HashTable::search(int ele)					//search for an element
+{
+	if(size==0)
+		return -1;	//hash table is empty
+
+	int hval=hash(ele);
+	int flag=0;
+	while(flag<=hval)
+	{
+		if(arr[hval].getID()!=ele)	//no element in the current hashvalue(may probe is considered) or element not in the hash value
+		{
+			hval=hash(hval+1);
+			flag++;
+			continue;
+		}
+		else
+			return 1;	//element is found
+	}
+	return -2;		//element not found	
+}
+
+Travel HashTable::findElement(int ele)						//find an element
+{
+	Travel ret;
+	if(size==0)
+		return ret;	//hash table is empty
+
+	int hval=hash(ele);
+	int flag=0;
+	while(flag<=hval)
+	{
+		if(arr[hval].getID()!=ele)	//no element in the current hashvalue(may probe is considered) or element not in the hash value
+		{
+			hval=hash(hval+1);
+			continue;
+		}
+		else
+			return arr[hval];	//element is found
+		flag++;
+	}
+	return ret;		//element not found		
+}
+
+void HashTable::display()					//display all elements
+{
+	if(size==0)
+		cout<<"No Details in the list\n";
+	else
+	{
+		int i;
+		for(i=0;i<capacity;i++)
+			cout<<arr[i];
+	}
+}
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex9[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex9[00m$ cat HashImp.cpp[1P.cpp[1P.cpp[1P.cppA.cppp.cppp.cppp.cpp[1P.cpp
+#include"HashHeader.h"
+int main()
+{
+	int ch,a,id;
+	HashTable h;
+	Travel T,T1;
+	do
+	{
+		cout<<"Enter"<<endl;
+		cout<<"		1:Insert a TravelPoint"<<endl;
+		cout<<"		2:Delete a TravelPoint"<<endl;
+		cout<<"		3:Find the  TravelPoint"<<endl;
+		cout<<"		4:Search a TravelPoint"<<endl;
+		cout<<"		5:Display All TravelPoint"<<endl;
+		cout<<"		6.Exit"<<endl;
+		cout<<"Enter your choice:";
+		cin>>ch;
+		if(ch==1)
+		{
+			cout<<"Enter the Details:";
+			cout<<endl;
+			cin>>T;
+			a=h.insert(T);
+			if(a==1)
+					cout<<"Travel details inserted\n";
+			else if(a==-1)
+				cout<<"List is Full, can't insert\n";
+			else
+				cout<<"Duplicate Travel details is not allowed\n";
+		}
+		else if(ch==2)
+		{
+			cout<<"Enter the P_ID to remove:";
+			cin>>id;
+			a=h.remove(id);
+			if(a==-1)
+				cout<<"List is Empty\n";
+			else if(a==-2)
+				cout<<"Bank Account not found\n";
+			else
+				cout<<"Account details deleted\n";
+		}
+		else if(ch==3)
+		{
+			cout<<"Enter the P_ID to find:";
+			cin>>id;
+			T=h.findElement(id);
+			if(T.getID()==0)
+				cout<<"No such detail found...\n";
+			else
+				cout<<T;
+		}
+		else if(ch==4)
+		{
+			cout<<"Enter the P_ID to search:";
+			cin>>id;
+			int temp=h.search(id);
+			if(temp==-1)
+				cout<<"List is Empty\n";
+			else if(temp==-2)
+				cout<<"Travel Details not found\n";
+			else
+				cout<<"Travel Details found\n";
+		}
+		else if(ch==5)
+		{
+			h.display();
+		}
+		else if(ch==6)
+			return 0;
+		else
+			cout<<"Enter a valid option..\n";
+	}while(ch!=6);
+}]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex9[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex9[00m$ cat makefile
+Hash.exe: HashImp.o HashApp.o
+	g++ HashImp.o HashApp.o -o Hash.exe
+HashImp.o: HashImp.cpp
+	g++ -c HashImp.cpp
+HashApp.o: HashApp.cpp
+	g++ -c HashApp.cpp
+
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex9[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex9[00m$ ./Hash.exe
+Enter
+		1:Insert a TravelPoint
+		2:Delete a TravelPoint
+		3:Find the  TravelPoint
+		4:Search a TravelPoint
+		5:Display All TravelPoint
+		6.Exit
+Enter your choice:1
+Enter the Details:
+ Enter the p Id   : 123
+ Enter the Name : 123
+ Enter the Vechicle Type : 123
+ Enter the Vechicle Type : 123
+ Enter the Amount_Of_Toll : 123
+Travel details inserted
+Enter
+		1:Insert a TravelPoint
+		2:Delete a TravelPoint
+		3:Find the  TravelPoint
+		4:Search a TravelPoint
+		5:Display All TravelPoint
+		6.Exit
+Enter your choice:1
+Enter the Details:
+ Enter the p Id   : 123 4
+ Enter the Name : 124
+ Enter the Vechicle Type : 124
+ Enter the Vechicle Type : 124
+ Enter the Amount_Of_Toll : 124
+Travel details inserted
+Enter
+		1:Insert a TravelPoint
+		2:Delete a TravelPoint
+		3:Find the  TravelPoint
+		4:Search a TravelPoint
+		5:Display All TravelPoint
+		6.Exit
+Enter your choice:1
+Enter the Details:
+ Enter the p Id   : 1212 
+ Enter the Name : 121
+ Enter the Vechicle Type : 121
+ Enter the Vechicle Type : 121
+ Enter the Amount_Of_Toll : ^[[B^[[F        121
+Travel details inserted
+Enter
+		1:Insert a TravelPoint
+		2:Delete a TravelPoint
+		3:Find the  TravelPoint
+		4:Search a TravelPoint
+		5:Display All TravelPoint
+		6.Exit
+Enter your choice:1
+Enter the Details:
+ Enter the p Id   : 133
+ Enter the Name : 133
+ Enter the Vechicle Type : 133
+ Enter the Vechicle Type : 133
+ Enter the Amount_Of_Toll : 133
+Travel details inserted
+Enter
+		1:Insert a TravelPoint
+		2:Delete a TravelPoint
+		3:Find the  TravelPoint
+		4:Search a TravelPoint
+		5:Display All TravelPoint
+		6.Exit
+Enter your choice:5
+ Enter the p Id   : 0
+ Name : 
+ Source : 
+ Destination : 
+Amount : 0 Enter the p Id   : 121
+ Name : 121
+ Source : 121
+ Destination : 121
+Amount : 121 Enter the p Id   : 0
+ Name : 
+ Source : 
+ Destination : 
+Amount : 0 Enter the p Id   : 123
+ Name : 123
+ Source : 123
+ Destination : 123
+Amount : 123 Enter the p Id   : 124
+ Name : 124
+ Source : 124
+ Destination : 124
+Amount : 124 Enter the p Id   : 133
+ Name : 133
+ Source : 133
+ Destination : 133
+Amount : 133 Enter the p Id   : 0
+ Name : 
+ Source : 
+ Destination : 
+Amount : 0 Enter the p Id   : 0
+ Name : 
+ Source : 
+ Destination : 
+Amount : 0 Enter the p Id   : 0
+ Name : 
+ Source : 
+ Destination : 
+Amount : 0 Enter the p Id   : 0
+ Name : 
+ Source : 
+ Destination : 
+Amount : 0Enter
+		1:Insert a TravelPoint
+		2:Delete a TravelPoint
+		3:Find the  TravelPoint
+		4:Search a TravelPoint
+		5:Display All TravelPoint
+		6.Exit
+Enter your choice:2
+Enter the P_ID to remove:133
+Account details deleted
+Enter
+		1:Insert a TravelPoint
+		2:Delete a TravelPoint
+		3:Find the  TravelPoint
+		4:Search a TravelPoint
+		5:Display All TravelPoint
+		6.Exit
+Enter your choice:5
+ Enter the p Id   : 0
+ Name : 
+ Source : 
+ Destination : 
+Amount : 0 Enter the p Id   : 121
+ Name : 121
+ Source : 121
+ Destination : 121
+Amount : 121 Enter the p Id   : 0
+ Name : 
+ Source : 
+ Destination : 
+Amount : 0 Enter the p Id   : 123
+ Name : 123
+ Source : 123
+ Destination : 123
+Amount : 123 Enter the p Id   : 124
+ Name : 124
+ Source : 124
+ Destination : 124
+Amount : 124 Enter the p Id   : 133
+ Name : 133
+ Source : 133
+ Destination : 133
+Amount : 133 Enter the p Id   : 0
+ Name : 
+ Source : 
+ Destination : 
+Amount : 0 Enter the p Id   : 0
+ Name : 
+ Source : 
+ Destination : 
+Amount : 0 Enter the p Id   : 0
+ Name : 
+ Source : 
+ Destination : 
+Amount : 0 Enter the p Id   : 0
+ Name : 
+ Source : 
+ Destination : 
+Amount : 0Enter
+		1:Insert a TravelPoint
+		2:Delete a TravelPoint
+		3:Find the  TravelPoint
+		4:Search a TravelPoint
+		5:Display All TravelPoint
+		6.Exit
+Enter your choice:6
+^C
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex9[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex9[00m$ exit
+exit
+
+Script done on 2021-02-23 10:07:29+05:30 [COMMAND_EXIT_CODE="130"]

@@ -1,0 +1,406 @@
+Script started on 2021-02-19 14:48:07+05:30 [TERM="xterm-256color" TTY="/dev/tty1" COLUMNS="158" LINES="38"]
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5ii[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5ii[00m$ cat Queue.h
+#include<iostream>
+using namespace std;
+class Complex
+{
+	private:
+			int real; // Real Value
+			int imaginary; // Imaginary Value
+	public:
+			Complex();
+			Complex(int,int); // Constructor
+			Complex(const Complex&); 
+			~Complex(); // Destructor
+			void getInput(); // Get Input
+			void display(); // Display Complex
+	friend class Queue; // Queue is a friend of this class
+};
+
+class Node
+{
+	private:
+			Complex *data; // A list of Complex Numbers in Queue
+			Node *next; // Self-referencing pointer
+	public:
+			Node();
+			void gettInput();
+	friend class Queue; // Queue is the friend of this class
+};
+
+class Queue
+{
+	private:
+			Node *first; // Address of First Node
+	public:
+			Queue(); // Constructor 
+			Queue(Node*);
+			Queue(const Queue&);
+			~Queue(); // Destructor
+			int enQueue(Node*); // Insert Element at Last
+			int deQueue(); // Delete Element at First
+			int isEmpty(); // Check for Empty or Not
+			Complex* peak(); // Peak Element of Queue
+			int size(); // Current Size of the Queue
+			bool makeEmpty(); // Make complete Queue Empty
+			void displayQueue(); // Display all Element in Queue
+};
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5ii[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5ii[00m$ cat Queue.hI.hm.hp.h[C[C[Kcpp
+#include"Queue.h"
+
+Complex::Complex()
+{
+	real=0;
+	imaginary=0;
+}
+
+Complex::Complex(int r,int i)
+{
+	real=r;
+	imaginary=i;
+}
+
+Complex::Complex(const Complex &c)
+{
+	real=c.real;
+	imaginary=c.imaginary;
+}
+
+Complex::~Complex()
+{
+	real=0;
+	imaginary=0;
+}
+
+void Complex::getInput()
+{
+	cout<<"Enter the Real Number:";
+	cin>>real;
+	cout<<"Enter the Imaginary Number:";
+	cin>>imaginary;
+}
+
+void Complex::display()
+{
+	cout<<real<<" + "<<imaginary<<"i"<<endl;
+}
+
+Node::Node()
+{
+	data=new Complex();
+	next=NULL;
+}
+
+void Node::gettInput()
+{
+	data->getInput();
+}
+
+Queue::Queue()
+{
+	first=NULL;
+}
+
+Queue::Queue(Node *n)
+{
+	first=n;
+}
+
+Queue::Queue(const Queue &q)
+{
+	first=q.first;
+}
+
+Queue::~Queue()
+{
+	delete first;
+	first=NULL;
+}
+
+int Queue::isEmpty()
+{
+	if(first==NULL)
+		return 1;
+	else
+		return 0;
+}
+
+int Queue::enQueue(Node *n)
+{
+	if(isEmpty())
+		first=n;
+	else
+	{
+		Node *t=first;
+		while(t->next!=NULL)
+			t=t->next;
+		t->next=n;
+	}
+	return 1;
+}
+
+int Queue::deQueue()
+{
+	if(isEmpty())
+		return 0;
+	else
+	{
+		Node *t=first;
+		first=first->next;
+		delete t;
+		t=NULL;
+		return 1;
+	}
+}
+
+Complex* Queue::peak()
+{
+	if(!isEmpty())
+		return first->data;
+	else
+		cout<<"Empty Queue...\n";
+}
+
+int Queue::size()
+{
+	int c=0;
+	if(isEmpty())
+		return c;
+	else
+	{
+		Node *t=first;
+		while(t!=NULL)
+		{
+			c++;
+			t=t->next;
+		}
+		return c;
+	}
+}
+
+bool Queue::makeEmpty()
+{
+	Node *t=first;
+	while(t!=NULL)
+	{
+		first=first->next;
+		delete t;
+		t=first;
+	}
+	first=NULL;
+	return true;
+}
+
+void Queue::displayQueue()
+{
+	if(isEmpty())
+		cout<<"Queue Empty ... Nothing to display...\n";
+	else
+	{
+		Node *temp=first;
+		while(temp->next!=NULL)
+		{
+			cout<<temp->data->real<<" + "<<temp->data->imaginary<<"i"<<" -> ";
+			temp=temp->next;
+		}
+	cout<<temp->data->real<<" + "<<temp->data->imaginary<<"i"<<endl;
+	}
+}
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5ii[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5ii[00m$ cat QueueImp.cpp[1P.cpp[1P.cpp[1P.cppA.cppp.cppp.cpp
+#include"Queue.h"
+int main()
+{
+	Queue s;
+	Node *n;
+	Complex *c;
+	int ch; bool x; char ch1;
+	int c1=0;
+	do
+	{
+		cout<<"Enter \n";
+		cout<<"		1IsEmpty \n";
+		cout<<"		2.Insert a number \n";
+		cout<<"		3.Delete a number \n";
+		cout<<"		4.Size \n";
+		cout<<"		5.Peak \n";
+		cout<<"		6.MakeEmpty \n";
+		cout<<"		7.Display \n";
+		cout<<"Enter your Choice:";
+		cin>>ch;
+		cout<<endl;
+		switch(ch)
+		{
+			case 1:
+					c1=s.isEmpty();
+					if(c1==1)
+						cout<<"\nQueue Empty...\n";
+					else
+						cout<<"Queue has some Elements..\n";
+					break;
+			case 2:
+					n=new Node();
+					n->gettInput();
+					c1=s.enQueue(n);
+					if(c1==1)
+						cout<<"\nSuccess....\n";
+					else
+						cout<<"Not Inserted....\n";
+					break;
+			case 3:
+					c1=s.deQueue();
+					if(c1==1)
+						cout<<"\nDeletion Success....\n";
+					else
+						cout<<"Not Deleted....\n";
+					break;
+			case 4:
+					c1=s.size();
+					cout<<"\nSize of Queue:"<<c1<<endl;
+					break;
+			case 5:
+					c=s.peak();
+					cout<<"\nThe Peak Element is:";
+					c->display();
+					break;
+			case 6:
+					x=s.makeEmpty();
+					if(x==true)
+						cout<<"Queue Emptied..\n";
+					else
+						cout<<"Queue not Emptied...\n";
+					break;
+			case 7:
+					s.displayQueue();
+					break;
+			default:
+					cout<<"Wrong Input... Try Again!!!\n";
+					break;
+		}
+	cout<<"Enter 'y' to continue...\n";
+	cin>>ch1;
+	}while(ch1=='y');
+	return 0;
+}
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5ii[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5ii[00m$ cat makefile
+Queue.exe: QueueImp.o QueueApp.o
+	g++ QueueImp.o QueueApp.o -o Queue.exe
+QueueImp.o: QueueImp.cpp
+	g++ -c QueueImp.cpp
+QueueApp.o: QueueApp.cpp
+	g++ -c QueueApp.cpp
+
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5ii[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5ii[00m$ ./Queue.exe
+Enter 
+		1IsEmpty 
+		2.Insert a number 
+		3.Delete a number 
+		4.Size 
+		5.Peak 
+		6.MakeEmpty 
+		7.Display 
+Enter your Choice:1
+
+
+Queue Empty...
+Enter 'y' to continue...
+y
+Enter 
+		1IsEmpty 
+		2.Insert a number 
+		3.Delete a number 
+		4.Size 
+		5.Peak 
+		6.MakeEmpty 
+		7.Display 
+Enter your Choice:2
+
+Enter the Real Number:1
+Enter the Imaginary Number:1
+
+Success....
+Enter 'y' to continue...
+2 y
+Enter 
+		1IsEmpty 
+		2.Insert a number 
+		3.Delete a number 
+		4.Size 
+		5.Peak 
+		6.MakeEmpty 
+		7.Display 
+Enter your Choice:2
+
+Enter the Real Number:2
+Enter the Imaginary Number:2
+
+Success....
+Enter 'y' to continue...
+y
+Enter 
+		1IsEmpty 
+		2.Insert a number 
+		3.Delete a number 
+		4.Size 
+		5.Peak 
+		6.MakeEmpty 
+		7.Display 
+Enter your Choice:7
+
+1 + 1i -> 2 + 2i
+Enter 'y' to continue...
+y
+Enter 
+		1IsEmpty 
+		2.Insert a number 
+		3.Delete a number 
+		4.Size 
+		5.Peak 
+		6.MakeEmpty 
+		7.Display 
+Enter your Choice:3
+
+
+Deletion Success....
+Enter 'y' to continue...
+y
+Enter 
+		1IsEmpty 
+		2.Insert a number 
+		3.Delete a number 
+		4.Size 
+		5.Peak 
+		6.MakeEmpty 
+		7.Display 
+Enter your Choice:7+
+
+2 + 2i
+Enter 'y' to continue...
+y
+
+Enter ^M
+                1IsEmpty ^M
+                2.Insert a number ^M
+                3.Delete a number ^M
+                4.Size ^M
+                5.Peak ^M
+                6.MakeEmpty ^M
+                7.Display ^M
+Enter your Choice:3
+Deletion Success...
+Enter 
+		1IsEmpty 
+		2.Insert a number 
+		3.Delete a number 
+		4.Size 
+		5.Peak 
+		6.MakeEmpty 
+		7.Display 
+Enter your Choice:7
+
+Queue Empty ... Nothing to display...
+Enter 'y' to continue...
+n
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5ii[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5ii[00m$ exit
+exit
+
+Script done on 2021-02-19 14:49:46+05:30 [COMMAND_EXIT_CODE="0"]

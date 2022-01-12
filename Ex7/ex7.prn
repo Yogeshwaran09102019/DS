@@ -1,0 +1,626 @@
+Script started on 2021-02-22 14:00:02+05:30 [TERM="xterm-256color" TTY="/dev/tty1" COLUMNS="146" LINES="35"]
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex7[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex7[00m$ cat AVLHeader.h
+//Header
+#include<iostream>
+#include<string>
+using namespace std;
+class Travel
+{
+	private:
+		int P_id;
+		string name;
+		string source;
+		string dest;
+		long amount;
+	public:
+		Travel();
+		Travel(int,string,string,string,long);
+		Travel(const Travel&);
+		void getInput();
+		void Display();
+		int getID();
+		bool operator>(Travel);
+		bool operator<(Travel);
+		bool operator==(Travel);
+		Travel operator=(Travel);
+		friend istream& operator>>(istream&,Travel&);
+		friend ostream& operator<<(ostream&,Travel&);
+	friend class Node;
+	friend class AVL;
+};
+
+class Node
+{
+	private:
+		Travel data;
+		Node *left;
+		Node *right;
+		int height;
+	public:
+		Node();
+		Node(Travel,int,Node*,Node*);
+		Node(const Node&);
+		void getNode();
+	friend class AVL;
+};
+
+class AVL
+{
+	private:
+		Node *root;
+	public:
+		AVL();
+		AVL(Node*);
+		AVL(const AVL&);
+		bool isEmpty();
+		int height(Node*);
+		int BF(Node*);
+		Node* insertElement(Node*,Node*);
+		bool searchElement(Travel);
+		int maximum(int,int);
+		Node* getRoot();
+		void inorder(Node*);
+		void preorder(Node*);
+		void postorder(Node*);
+		Node* LLRotate(Node*);
+	    Node* RRRotate(Node*);
+	    Node* LRRotate(Node*);
+	    Node* RLRotate(Node*);
+};
+
+
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex7[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex7[00m$ cat AVLImp.cpp
+// IMP
+#include"AVLHeader.h"
+#include<string>
+using namespace std;
+Travel::Travel()
+{
+	P_id=0;
+	//name=new char[20];
+	name="";
+	//source=new char[20];
+	source="";
+	//dest=new char[20];
+	dest="";
+	amount=0;
+}
+
+Travel::Travel(int p,string na,string s,string d,long amt)
+{
+	P_id=p;
+	name=na;
+	source=s;
+	dest=d;
+	amount=amt;
+}
+
+Travel::Travel(const Travel&t)
+{
+	P_id=t.P_id;
+	name=t.name;
+	source=t.source;
+	dest=t.dest;
+	amount=t.amount;
+}
+
+void Travel::Display()
+{
+	cout<<P_id<<name<<source<<dest<<amount;
+}
+
+int Travel::getID()
+{
+	return P_id;
+}
+istream& operator>>(istream &in,Travel &t)
+{
+		cout<<" Enter the p Id   : ";
+        in>>t.P_id;
+        cout<<" Enter the Name : ";
+        in>>t.name;
+        cout<<" Enter the Vechicle Type : ";
+        in>>t.source;
+
+		cout<<" Enter the Vechicle Type : ";
+        in>>t.dest;
+        cout<<" Enter the Amount_Of_Toll : ";
+        in>>t.amount;
+        return in;
+}
+
+ostream& operator<<(ostream &out,Travel &t)
+{
+		cout<<" Enter the p Id   : ";
+        out<<t.P_id;
+        cout<<"\n       VechicleName : ";
+        out<<t.name;
+        cout<<"\n       VechiceType : ";
+        out<<t.source;
+		cout<<" Enter the Vechicle Type : ";
+        out<<t.dest;
+        cout<<"\n       Gate_Amount : ";
+        out<<t.amount;
+        return out;
+}
+
+bool Travel::operator>(Travel t1)
+{
+	return (getID()>t1.getID());
+}
+bool Travel::operator<(Travel t1)
+{
+        return (getID()<t1.getID());
+}
+bool Travel::operator==(Travel j)
+{
+	if(getID()==j.getID())
+	    return true;
+	return false;
+}
+Travel Travel::operator=(Travel x)
+{
+	P_id=x.P_id;
+	name=x.name;
+	source=x.source;
+	dest=x.dest;
+	amount=x.amount;
+	return *this;
+}
+Node::Node()
+{
+	height=0;
+	left=NULL;
+	right=NULL;
+}
+
+Node::Node(Travel d,int h,Node *l,Node *r)
+{
+	data=d;
+	height=h;
+	left=l;
+	right=r;
+}
+
+Node::Node(const Node& n)
+{
+	data=n.data;
+	height=n.height;
+	left=n.left;
+	right=n.right;
+}
+
+AVL::AVL()
+{
+	root=NULL;
+}
+
+AVL::AVL(Node *r)
+{
+	root =r;
+}
+
+AVL::AVL(const AVL &b)
+{
+	root=b.root;
+}
+
+bool AVL::isEmpty()
+{
+	if(root==NULL)
+		return true;
+	else
+		return false;
+}
+
+Node* AVL::getRoot()
+{
+	return root;
+}
+
+int AVL::height(Node *n)
+{
+	if(n==NULL)
+		return -1;
+	else
+		return n->height;
+}
+
+int AVL::BF(Node *n)
+{
+	if(n==NULL)
+		return -1;
+	else
+		return (height(n->left)-height(n->right));
+}
+
+int AVL::maximum(int height1,int height2)
+{
+	if(height1>height2)
+	   return  height1;
+	else if(height1<height2)
+	   return height2;
+	return height1;
+}
+
+Node* AVL::LLRotate(Node *k3)
+{
+	//k3 - root node
+	Node *k2=k3->left;
+	Node *temp=k2->right;
+	k2->right=k3;
+	k3->left=temp;
+
+	//height update
+	k3->height=max(height(k3->left),height(k3->right))+1;
+	k2->height=max(height(k2->left),height(k2->right))+1;
+
+	return k2;
+}
+
+Node* AVL::RRRotate(Node *k1)
+{
+	//k1- root node
+	Node *k2=k1->right;
+	Node *temp=k2->left;
+	k2->left=k1;
+	k1->right=temp;
+
+	k1->height=max(height(k1->left),height(k1->right))+1;
+	k2->height=max(height(k2->left),height(k2->right))+1;
+
+	return k2;
+}
+
+Node* AVL::LRRotate(Node *k3)
+{
+	//k3- root node
+	k3->left=RRRotate(k3->left);	//RR rotate
+	return  LLRotate(k3);
+}
+
+Node* AVL::RLRotate(Node *k1)
+{
+    //k3- root node
+	k1->right=LLRotate(k1->right);	//RR rotate
+	return  RRRotate(k1);
+}
+
+void AVL::inorder(Node* temp)
+{
+	if(temp!=NULL)
+	{
+		inorder(temp->left);
+		cout<<temp->data;
+		inorder(temp->right);
+	}
+}
+
+void AVL::preorder(Node* temp)
+{
+	if(temp!=NULL)
+	{
+		cout<<temp->data;
+		preorder(temp->left);
+		preorder(temp->right);
+	}
+}
+
+void AVL::postorder(Node* temp)
+{
+	if(temp!=NULL)
+	{
+		postorder(temp->left);
+		postorder(temp->right);
+		cout<<temp->data;
+	}
+}
+
+Node* AVL::insertElement(Node *temp,Node *newNode)
+{
+	//temp-root
+	//newNode-node to insert
+	if(temp==NULL)
+	{
+		root=newNode;
+		return root;
+	}
+	else if(temp->data > newNode->data)
+	{
+		if(temp->left==NULL)
+			temp->left=newNode;
+		else
+			temp->left=insertElement(temp->left,newNode);
+	}
+	else if(temp->data < newNode->data)
+	{
+		if(temp->right==NULL)
+			temp->right=newNode;
+		else
+			temp->right=insertElement(temp->right,newNode);
+	}
+	else
+		cout<<"Duplicate ID can't be inserted\n";
+
+	temp->height = max(height(temp->left),height(temp->right)) + 1;
+	int bal=BF(temp);
+
+	if(bal>1)
+	{
+		if(newNode->data < temp->left->data)
+			return LLRotate(temp);
+		else
+			return LRRotate(temp);
+		cout<<"inserted\n";
+	}
+	if(bal<-1)
+	{
+		if(newNode->data > temp->right->data)
+			return RRRotate(temp);
+		else
+			return RLRotate(temp);
+		cout<<"inserted\n";
+	}
+	return temp;
+}
+
+bool AVL::searchElement(Travel key)
+{
+	Node *temp=root;
+	while(temp!=NULL)
+	{
+		if(temp->data>key)
+		   temp=temp->left;
+		else if(temp->data<key)
+		   temp=temp->right;
+		else
+		   return true;
+	}
+	return false;
+}
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex7[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex7[00m$ cat AVLImp.cpp[1P.cpp[1P.cpp[1P.cppA.cppp.cppp.cpp
+// APP
+#include"AVLHeader.h"
+int main()
+{
+	int ch;
+	bool a;
+	AVL t;
+	Travel T,T1;
+	Node *temp;
+	do
+	{
+		cout<<"Enter"<<endl;
+		cout<<"		1:Check for empty"<<endl;
+		cout<<"		2:Insert a TravelPoint"<<endl;
+		cout<<"		3:Display a TravelPoint by Inorder"<<endl;
+		cout<<"		4:Display a TravelPoint by Preorder"<<endl;
+		cout<<"		5:Display a TravelPoint by Postorder"<<endl;
+		cout<<"		6:Search a TravelPoint"<<endl;
+		cout<<"		7:Exit"<<endl;
+		cout<<"Enter your choice:";
+		cin>>ch;
+		if(ch==1)
+		{
+			a=t.isEmpty();
+			if(a==true)
+				cout<<"No element in tree...\n";
+			else
+				cout<<"Tree is not Empty...\n";
+		}
+		else if(ch==2)
+		{
+			cout<<"Enter the details...\n";
+			cin>>T;
+			Node *newnode = new Node(T,0,NULL,NULL);
+			temp=t.insertElement(t.getRoot(),newnode);
+			if(temp!=NULL)
+				cout<<"\nInsertion Successsful!\n";
+			else
+				cout<<"\nDuplicate Are Not Allowed!\n";
+		}
+		else if(ch==3)
+		{
+			cout<<"Inorder Display\n";
+			t.inorder(t.getRoot());
+		
+		}
+		else if(ch==4)
+		{
+			
+            cout<<"Preorder Display\n";
+            t.preorder(t.getRoot());
+                   
+		}
+		else if(ch==5)
+		{
+			cout<<"postorder Display\n";
+			t.postorder(t.getRoot());
+		}		
+		else if(ch==6)
+		{
+			cout<<"Enter the element to be searched:";
+			cin>>T;
+			a=t.searchElement(T);
+			if(a==true)
+				cout<<"Element found\n";
+			else
+				cout<<"Not Found \n";
+		}
+		else if(ch==7)
+		{
+			return 0;
+		}
+		else
+			cout<<"Choose a valid option";
+	}while(ch!=7);
+}]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex7[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex7[00m$ cat am[K[Kmakae[K[Kefile
+AVL.exe: AVLImp.o AVLApp.o
+		g++ AVLImp.o AVLApp.o -o AVL.exe
+AVLImp.o: AVLImp.cpp
+		g++ -c AVLImp.cpp
+AVLApp.o: AVLApp.cpp
+		g++ -c AVLApp.cpp
+
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex7[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex7[00m$ ./AVL.exe
+Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Display a TravelPoint by Inorder
+		4:Display a TravelPoint by Preorder
+		5:Display a TravelPoint by Postorder
+		6:Search a TravelPoint
+		7:Exit
+Enter your choice:1
+No element in tree...
+Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Display a TravelPoint by Inorder
+		4:Display a TravelPoint by Preorder
+		5:Display a TravelPoint by Postorder
+		6:Search a TravelPoint
+		7:Exit
+Enter your choice:2
+Enter the details...
+ Enter the p Id   : 2
+ Enter the Name : 2
+ Enter the Vechicle Type : 2
+ Enter the Vechicle Type : 2
+ Enter the Amount_Of_Toll : 2
+
+Insertion Successsful!
+Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Display a TravelPoint by Inorder
+		4:Display a TravelPoint by Preorder
+		5:Display a TravelPoint by Postorder
+		6:Search a TravelPoint
+		7:Exit
+Enter your choice:2
+Enter the details...
+ Enter the p Id   : 1
+ Enter the Name : 1
+ Enter the Vechicle Type : 1
+ Enter the Vechicle Type : 1
+ Enter the Amount_Of_Toll : 1
+
+Insertion Successsful!
+Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Display a TravelPoint by Inorder
+		4:Display a TravelPoint by Preorder
+		5:Display a TravelPoint by Postorder
+		6:Search a TravelPoint
+		7:Exit
+Enter your choice:2
+Enter the details...
+ Enter the p Id   : 3
+ Enter the Name : 3
+ Enter the Vechicle Type : 3
+ Enter the Vechicle Type : 3
+ Enter the Amount_Of_Toll : 3
+
+Insertion Successsful!
+Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Display a TravelPoint by Inorder
+		4:Display a TravelPoint by Preorder
+		5:Display a TravelPoint by Postorder
+		6:Search a TravelPoint
+		7:Exit
+Enter your choice:3
+Inorder Display
+ Enter the p Id   : 1
+       VechicleName : 1
+       VechiceType : 1 Enter the Vechicle Type : 1
+       Gate_Amount : 1 Enter the p Id   : 2
+       VechicleName : 2
+       VechiceType : 2 Enter the Vechicle Type : 2
+       Gate_Amount : 2 Enter the p Id   : 3
+       VechicleName : 3
+       VechiceType : 3 Enter the Vechicle Type : 3
+       Gate_Amount : 3Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Display a TravelPoint by Inorder
+		4:Display a TravelPoint by Preorder
+		5:Display a TravelPoint by Postorder
+		6:Search a TravelPoint
+		7:Exit
+Enter your choice:4
+Preorder Display
+ Enter the p Id   : 2
+       VechicleName : 2
+       VechiceType : 2 Enter the Vechicle Type : 2
+       Gate_Amount : 2 Enter the p Id   : 1
+       VechicleName : 1
+       VechiceType : 1 Enter the Vechicle Type : 1
+       Gate_Amount : 1 Enter the p Id   : 3
+       VechicleName : 3
+       VechiceType : 3 Enter the Vechicle Type : 3
+       Gate_Amount : 3Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Display a TravelPoint by Inorder
+		4:Display a TravelPoint by Preorder
+		5:Display a TravelPoint by Postorder
+		6:Search a TravelPoint
+		7:Exit
+Enter your choice:5
+postorder Display
+ Enter the p Id   : 1
+       VechicleName : 1
+       VechiceType : 1 Enter the Vechicle Type : 1
+       Gate_Amount : 1 Enter the p Id   : 3
+       VechicleName : 3
+       VechiceType : 3 Enter the Vechicle Type : 3
+       Gate_Amount : 3 Enter the p Id   : 2
+       VechicleName : 2
+       VechiceType : 2 Enter the Vechicle Type : 2
+       Gate_Amount : 2Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Display a TravelPoint by Inorder
+		4:Display a TravelPoint by Preorder
+		5:Display a TravelPoint by Postorder
+		6:Search a TravelPoint
+		7:Exit
+Enter your choice:6
+Enter the element to be searched: Enter the p Id   : 3
+ Enter the Name : 3
+ Enter the Vechicle Type : 3
+ Enter the Vechicle Type : 3
+ Enter the Amount_Of_Toll : 3
+Element found
+Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Display a TravelPoint by Inorder
+		4:Display a TravelPoint by Preorder
+		5:Display a TravelPoint by Postorder
+		6:Search a TravelPoint
+		7:Exit
+Enter your choice:6
+Enter the element to be searched: Enter the p Id   : 5
+ Enter the Name : 5
+ Enter the Vechicle Type : 5
+ Enter the Vechicle Type : 5
+ Enter the Amount_Of_Toll : 5
+Not Found 
+Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Display a TravelPoint by Inorder
+		4:Display a TravelPoint by Preorder
+		5:Display a TravelPoint by Postorder
+		6:Search a TravelPoint
+		7:Exit
+Enter your choice:7
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex7[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex7[00m$ exit
+exit
+
+Script done on 2021-02-22 14:01:33+05:30 [COMMAND_EXIT_CODE="0"]

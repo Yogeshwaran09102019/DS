@@ -1,0 +1,396 @@
+Script started on 2021-02-23 10:11:18+05:30 [TERM="xterm-256color" TTY="/dev/tty1" COLUMNS="158" LINES="40"]
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex10[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex10[00m$ cat Graph,h
+cat: Graph,h: No such file or directory
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex10[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex10[00m$ cat Graph,h[C[1Ph.h
+#include<iostream>
+using namespace std;
+class Travel
+{
+	private:
+		int P_id;
+		string name;
+		string source;
+		string dest;
+		long amount;
+	public:
+		Travel();
+		Travel(int,string,string,string,long);
+		Travel(const Travel&);
+		void getInput();
+		void Display();
+		int getID();
+		bool operator>(Travel);
+		bool operator<(Travel);
+		bool operator==(Travel);
+		Travel operator=(Travel);
+		friend istream& operator>>(istream&,Travel&);
+		friend ostream& operator<<(ostream&,Travel&);
+	friend class Graph;
+};
+
+class Graph//graph class
+{
+	public:
+			Graph(int);									//parameterised constructor
+			~Graph();   								// destructor
+			void performDFS();							//perform Depth first traversal
+			void dfs(int);								// perform DFS on adjacent vertices
+			void getData();								//get application data for each vertices
+			void createGraph();							//create adjacency matrix (create vertices by getting edges)
+			void printAdjacent();						//to print adjacency matrix
+			void displayAll();   						//to Display Detail of all vertices
+			int display();
+	private:
+			Travel *vertices;								//verteices pointer
+			int noOfVertices;							//number of vertuices in the graph
+			bool* visited;								//to denote which vertices are visited
+			int** adjMatrix;							//adjacency matrix
+};]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex10[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex10[00m$ cat GraphImp.cpp
+#include"Graph.h"
+Travel::Travel()
+{
+	P_id=0;
+	name="";
+	source="";
+	dest="";
+	amount=0;
+}
+
+Travel::Travel(int p,string na,string s,string d,long amt)
+{
+	P_id=p;
+	name=na;
+	source=s;
+	dest=d;
+	amount=amt;
+}
+
+Travel::Travel(const Travel&t)
+{
+	P_id=t.P_id;
+	name=t.name;
+	source=t.source;
+	dest=t.dest;
+	amount=t.amount;
+}
+
+void Travel::Display()
+{
+	cout<<P_id<<name<<source<<dest<<amount;
+}
+
+int Travel::getID()
+{
+	return P_id;
+}
+istream& operator>>(istream &in,Travel &t)
+{
+		cout<<" Enter the p Id   : ";
+        in>>t.P_id;
+        cout<<" Enter the Name : ";
+        in>>t.name;
+        cout<<" Enter the Vechicle Type : ";
+        in>>t.source;
+
+		cout<<" Enter the Vechicle Type : ";
+        in>>t.dest;
+        cout<<" Enter the Amount_Of_Toll : ";
+        in>>t.amount;
+        return in;
+}
+
+ostream& operator<<(ostream &out,Travel &t)
+{
+		cout<<" Enter the p Id   : ";
+        out<<t.P_id;
+        cout<<"\n Name : ";
+        out<<t.name;
+        cout<<"\n Source : ";
+        out<<t.source;
+		cout<<"\n Destination : ";
+        out<<t.dest;
+        cout<<"\nAmount : ";
+        out<<t.amount;
+        return out;
+}
+
+bool Travel::operator>(Travel t1)
+{
+	return (getID()>t1.getID());
+}
+bool Travel::operator<(Travel t1)
+{
+        return (getID()<t1.getID());
+}
+bool Travel::operator==(Travel j)
+{
+	if(getID()==j.getID())
+	    return true;
+	return false;
+}
+Travel Travel::operator=(Travel x)
+{
+	P_id=x.P_id;
+	name=x.name;
+	source=x.source;
+	dest=x.dest;
+	amount=x.amount;
+	return *this;
+}
+
+Graph::Graph(int n)										//parameterised constructor
+{
+	noOfVertices=n;
+	vertices=new Travel[n];
+	adjMatrix = new int*[noOfVertices];
+
+	for( int i=0; i<noOfVertices; i++ )
+		adjMatrix[i] = new int[noOfVertices];
+	
+	visited = new bool[noOfVertices];
+	for( int i=0;i<noOfVertices ; i++)
+		for( int j=0; j<noOfVertices ; j++)
+			adjMatrix[i][j] = 0;
+}
+
+void Graph::getData()	//input details for every vertices
+{
+	int i;
+	Travel T;
+	for(i=0;i<noOfVertices;i++)
+	{
+		cin>>T;
+		vertices[i]=T;
+	}
+}
+
+void Graph::createGraph()	//to create a graph
+{
+	int i,num_edge,v,w,weight;
+	cout<<"\nEnter No of Edges in graph: ";
+	cin>>num_edge;
+	for(i=0;i<num_edge;i++)
+	{
+		cout<<"\nEnter the Vertices numbers one after one that form an edge:\n";
+		cin>>v>>w;
+		adjMatrix[v-1][w-1] = 1;
+		adjMatrix[w-1][v-1] = 1;		
+	}
+}
+
+void Graph::performDFS()		//DFS traversal
+{
+	int i;
+	for(i=0;i<noOfVertices;i++)
+		if(visited[i]==false)
+			dfs(i);
+}
+
+void Graph::dfs(int i)
+{
+	int j;
+	cout<<"\nVertex : "<<i+1<<"\n";
+	cout<<vertices[i];
+	visited[i] = true;
+	for(j=0;j<noOfVertices;j++)
+		if(adjMatrix[i][j]==1 && visited[j]==false)
+			dfs(j);
+}
+
+void Graph::displayAll()		//to display all the vertices details
+{
+	int i;
+	for(i=0;i<noOfVertices;i++)
+	{
+		cout<<vertices[i];
+	}
+}
+
+void Graph::printAdjacent()		//to display the adjacent matrix
+{
+	int i,j;
+	cout<<"\n Adjacent Matrix :\n";
+	for(i=0;i<noOfVertices;i++)
+		cout<<"\t"<<i+1;
+	cout<<"\n";
+	for(i=0;i<noOfVertices;i++)
+		cout<<"--------";
+	cout<<"\n";
+	for(i=0;i<noOfVertices;i++)
+	{
+		cout<<i+1<<" |\t";
+		for(j=0;j<noOfVertices;j++)
+			cout<<adjMatrix[i][j]<<"\t";
+		cout<<"\n";
+	}
+}
+
+Graph::~Graph()			//destructor
+{
+	int i;
+	for(i=0;i<noOfVertices;i++)
+		adjMatrix[i]=NULL;
+	noOfVertices = 0;
+	vertices=NULL;
+	visited=NULL;
+}]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex10[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex10[00m$ cat Grapha[KApp.cpp
+#include"Graph.h"
+
+int main()
+{
+	int n,ch;
+	cout<<"Enter no of Vertices: ";
+	cin>>n;
+	Graph g(n);
+	g.getData();
+	g.createGraph();
+	while(true)
+	{
+		cout<<"\nChoose an option\n";
+		cout<<"1 - Perform DFS Traversal\n";
+		cout<<"2 - Display all Travel details\n";
+		cout<<"3 - To Display Adjacent Matrix\n";
+		cout<<"4- to exit\n\n";
+		cin>>ch;
+		cout<<"\n";
+		if(ch==4)
+			break;
+		switch(ch)
+		{
+			case 1:
+			{
+				g.performDFS();
+				break;
+			}
+			case 2:
+			{
+				g.displayAll();
+				break;
+			}
+			case 3:
+			{
+				g.printAdjacent();
+				break;
+			}
+			default:
+			{
+				cout<<"Invalid Input\n";
+			}
+		}
+	}
+}]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex10[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex10[00m$ cat makae[K[K[Kkefile
+Graph.exe: GraphImp.o GraphApp.o
+	g++ GraphImp.o GraphApp.o -o Graph.exe
+GraphImp.o: GraphImp.cpp
+	g++ -c GraphImp.cpp
+GraphApp.o: GraphApp.cpp
+	g++ -c GraphApp.cpp
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex10[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex10[00m$ ./Graph.exe
+Enter no of Vertices: 3
+ Enter the p Id   : 1
+ Enter the Name : 1
+ Enter the Vechicle Type : 1
+ Enter the Vechicle Type : 1
+ Enter the Amount_Of_Toll : 1
+ Enter the p Id   : 1
+ Enter the Name : 2
+ Enter the Vechicle Type : 2
+ Enter the Vechicle Type : 2
+ Enter the Amount_Of_Toll : 2
+ Enter the p Id   : 2
+ Enter the Name : 3
+ Enter the Vechicle Type : 
+3
+ Enter the Vechicle Type : 3
+ Enter the Amount_Of_Toll : 3
+
+Enter No of Edges in graph: 3
+
+Enter the Vertices numbers one after one that form an edge:
+1
+2
+
+Enter the Vertices numbers one after one that form an edge:
+1
+3
+
+Enter the Vertices numbers one after one that form an edge:
+2
+3
+
+Choose an option
+1 - Perform DFS Traversal
+2 - Display all Travel details
+3 - To Display Adjacent Matrix
+4- to exit
+
+1
+
+
+Vertex : 1
+ Enter the p Id   : 1
+ Name : 1
+ Source : 1
+ Destination : 1
+Amount : 1
+Vertex : 2
+ Enter the p Id   : 1
+ Name : 2
+ Source : 2
+ Destination : 2
+Amount : 2
+Vertex : 3
+ Enter the p Id   : 2
+ Name : 3
+ Source : 3
+ Destination : 3
+Amount : 3
+Choose an option
+1 - Perform DFS Traversal
+2 - Display all Travel details
+3 - To Display Adjacent Matrix
+4- to exit
+
+2
+
+ Enter the p Id   : 1
+ Name : 1
+ Source : 1
+ Destination : 1
+Amount : 1 Enter the p Id   : 1
+ Name : 2
+ Source : 2
+ Destination : 2
+Amount : 2 Enter the p Id   : 2
+ Name : 3
+ Source : 3
+ Destination : 3
+Amount : 3
+Choose an option
+1 - Perform DFS Traversal
+2 - Display all Travel details
+3 - To Display Adjacent Matrix
+4- to exit
+
+3
+
+
+ Adjacent Matrix :
+	1	2	3
+------------------------
+1 |	0	1	1	
+2 |	1	0	1	
+3 |	1	1	0	
+
+Choose an option
+1 - Perform DFS Traversal
+2 - Display all Travel details
+3 - To Display Adjacent Matrix
+4- to exit
+
+4
+
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex10[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex10[00m$ exit
+exit
+
+Script done on 2021-02-23 10:12:57+05:30 [COMMAND_EXIT_CODE="0"]

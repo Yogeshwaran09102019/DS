@@ -1,0 +1,556 @@
+Script started on 2021-02-19 07:29:30+0530
+yogesh@DESKTOP-1J8JGD6: /mnt/c/users/lenovo/desktop/Lab/ex2$ cat List.h
+#include<iostream>
+using namespace std;
+class Complex
+{
+	private:
+			int real; // To Store the real number Value
+			int imaginary; //  To store Imaginary Number
+	public:
+			Complex();
+			Complex(int,int);// Constructors 
+			Complex(const Complex&);
+			~Complex(); // Destructor
+			void gettInput();  // Function to get Complex Number from user
+	friend class L_List; // L_List is a Friend of this class 
+};
+
+class Node
+{
+	private:
+			Complex *c; // To store Complex number
+			Node *next; // Self-Referencing Pointer
+	public:
+			Node();
+			void getInput(); 
+	friend class L_List; // L_List is also friend of this class
+};
+
+class L_List
+{
+	public:
+		L_List(); // Constructor
+		L_List(Node*);
+		L_List(const L_List&);
+		~L_List(); // Destructor
+		int isEmpty(); // To check whether the list is Empty or Not
+		void insertAtFirst(Node*); // Insertion based on requirement
+		void insertAtLast(Node*);
+		void insertBeforeElt(Node*,Complex*);
+		void insertAfterElt(Node*,Complex*);
+		void deleteAtFirst(); // Deletion based on requirement
+		void deleteBeforeElt(Complex*);
+		void deleteAfterElt(Complex*);
+		void makeEmpty(); // Make the List Empty
+		void Display(); // Display the List
+	private:
+		Node *first; // Address of first node
+};
+yogesh@DESKTOP-1J8JGD6: /mnt/c/users/lenovo/desktop/Lab/ex2$ cat listimp.cpp
+#include"List.h"
+Complex::Complex()
+{
+	real=imaginary=0;
+}
+
+Complex::Complex(int r,int i)
+{
+	real=r;
+	imaginary=i;
+}
+
+Complex::Complex(const Complex &c)
+{
+	real=c.real;
+	imaginary=c.imaginary;
+}
+
+Complex::~Complex()
+{
+	real=0;
+	imaginary=0;
+}
+
+void Complex::gettInput()
+{
+	cout<<"Enter the Real Number:";
+	cin>>real;
+	cout<<"Enter the Imaginary Number:";
+	cin>>imaginary;
+}
+
+Node::Node()
+{
+	c=new Complex();
+	next=NULL;
+}
+
+void Node::getInput()
+{
+	c->gettInput();
+}
+
+L_List :: L_List()
+{
+	first = NULL; // Initially List is empty 
+}
+
+L_List :: L_List(Node *f)
+{
+	first = f; 
+}
+
+L_List :: L_List(const L_List&f)
+{
+	first = f.first; 
+}
+
+L_List :: ~L_List()
+{
+	first = NULL;
+	delete first;
+}
+
+int L_List::isEmpty()
+{
+	if(first==NULL)
+		return 1;
+	else
+		return 0;
+}
+
+void L_List::insertAtFirst(Node *n)
+{
+	if(isEmpty())
+	{
+		first=n;
+		cout<<"Inserted As it is Empty.....\n";
+	}
+	else
+	{
+		n->next=first;
+		first=n;
+		cout<<"Inserted ...\n";
+	}
+}
+
+void L_List::insertAtLast(Node *n1)
+{
+	if(isEmpty())
+		insertAtFirst(n1);
+	else
+	{
+		Node *temp=first;
+		while(temp->next!=NULL)
+		{
+			temp=temp->next;
+		}
+		temp->next=n1;
+	}
+	cout<<"Added at Last...\n";
+}
+
+void L_List::insertAfterElt(Node *n,Complex *c1)
+{
+	if(isEmpty())
+		cout<<"List Empty ... Before Element cannot be inserted...\n";
+	else
+	{
+		Node *temp=first;
+		while(temp->next!=NULL && ((temp->c->real!=c1->real) && (temp->c->imaginary!=c1->imaginary)))
+		{
+			temp=temp->next;
+		}
+		n->next=temp->next;
+		temp->next=n;
+		cout<<"Inserted Successfully....\n";
+	}
+}
+
+void L_List::insertBeforeElt(Node *n,Complex *c1)
+{
+	if(isEmpty())
+		cout<<"List Empty ... Before Element cannot be inserted...\n";
+	else
+	{
+		Node *temp=first;
+		Node *prev=first;
+		while(temp->next!=NULL && ((temp->c->real!=c1->real) && (temp->c->imaginary!=c1->imaginary)))
+		{
+			prev=temp;
+			temp=temp->next;
+		}
+		prev->next=n;
+		n->next=temp;
+		cout<<"Inserted Successfully....\n";
+	}
+}
+
+void L_List::deleteAtFirst()
+{
+	if(isEmpty())
+		cout<<"List Empty Nothing to delete...\n";
+	else
+	{
+		Node *temp=first;
+		first=first->next;
+		delete temp;
+		temp=NULL;
+		cout<<"Deleted Successfully....\n";
+	}
+}
+
+
+void L_List::deleteBeforeElt(Complex *c1)
+{
+	if(isEmpty())
+		cout<<"List Empty...\n";
+	else
+	{
+		Node *t=first;
+		Node *temp=first;
+		Node *prev=first;
+		while(temp->next!=NULL && !((temp->c->real==c1->real) && (temp->c->imaginary==c1->imaginary)))
+		{
+			t=prev;
+			prev=temp;
+			temp=temp->next;
+		}
+		
+		t->next=temp;
+		delete prev;
+		prev=NULL;
+		cout<<"Deleted Successfully....\n";
+	}
+}
+
+void L_List::deleteAfterElt(Complex *c1)
+{
+	if(isEmpty())
+		cout<<"List Empty...\n";
+	else
+	{
+		Node *temp=first;
+		Node *n=first;
+		while(temp->next!=NULL && ((temp->c->real!=c1->real) && (temp->c->imaginary!=c1->imaginary)))
+		{
+			temp=temp->next;
+			n=temp->next;
+		}
+		temp->next=n->next;
+		delete n;
+		n=NULL;
+		cout<<"Deleted Successfully....\n";
+	}
+}
+
+void L_List::makeEmpty()
+{
+	while(!isEmpty())
+	{
+		deleteAtFirst();
+	}
+}
+
+void L_List::Display()
+{
+	Node *temp=first;
+	if(isEmpty())
+	{
+		cout<<"List Empty .... Nothing to display\n";
+		goto x;
+	}
+	while(temp->next!=NULL)
+	{
+		cout<<temp->c->real<<" + "<<temp->c->imaginary<<"i"<<" -> ";
+		temp=temp->next;
+	}
+	cout<<temp->c->real<<" + "<<temp->c->imaginary<<"i";
+	x:
+	cout<<"\n";
+}
+
+yogesh@DESKTOP-1J8JGD6: /mnt/c/users/lenovo/desktop/Lab/ex2[01;32mprusanu@DESKTOP-1J8JGD6[00m:[01;34m/mnt/c/users/lenovo/desktop/Lab/ex2[00m$ cat listapp.cpp
+#include"List.h"
+int main()
+{
+	L_List list;
+	Node *n;
+	Complex *c11;
+	int ch;
+	do
+	{
+		cout<<"-----------------  OPERATIONS  -----------------\n";
+		cout<<"    	1.INSERT AT FIRST              \n";
+		cout<<" 	2.INSERT AT LAST                \n";
+		cout<<"	    	3.INSERT BEFORE GIVEN ELEMENT	        \n";
+		cout<<"	    	4.INSERT AFTER GIVEN ELEMENT             \n";
+		cout<<"	    	5.DELETE AT FIRST                         \n";
+		cout<<" 	6.DELETE BEFORE GIVEN ELEMENT	    \n";
+		cout<<"	    	7.DELETE AFTER GIVEN ELEMENT	     \n";
+		cout<<" 	8.MAKE EMPTY				          \n";
+		cout<<"	    	9.DISPLAY \n";
+		cout<<"--------------------------------------------------      \n";
+		cout<<"Enter your Choice:";
+		cin>>ch;
+		switch(ch)
+		{
+			case 1:
+					n=new Node();
+					n->getInput();
+					list.insertAtFirst(n);
+					break;
+			case 2:
+					n=new Node();
+					n->getInput();
+					list.insertAtLast(n);
+					break;
+			case 3:
+					cout<<"Enter the element to be searched for before insertion:\n";
+					c11=new Complex();
+					c11->gettInput();
+					cout<<"Enter the Element to be inserted:\n";
+					n=new Node();
+					n->getInput();
+					list.insertBeforeElt(n,c11);
+					break;
+			case 4:
+					cout<<"Enter the element to be searched for after insertion:\n";
+					c11=new Complex();
+					c11->gettInput();
+					cout<<"Enter the Element to be inserted:\n";
+					n=new Node();
+					n->getInput();
+					list.insertAfterElt(n,c11);
+					break;
+			case 5:
+					list.deleteAtFirst();
+					break;
+			/*case 6:
+					list.deleteAtLast();
+					break;*/
+			case 6:
+					cout<<"Enter the element to be searched for before deletion:\n";
+					c11=new Complex();
+					c11->gettInput();
+					list.deleteBeforeElt(c11);
+					break;
+			case 7:
+					cout<<"Enter the element to be searched for after deletion:\n";
+					c11=new Complex();
+					c11->gettInput();
+					list.deleteAfterElt(c11);
+					break;
+			case 8:
+					list.makeEmpty();
+					break;
+			case 9:
+					list.Display();
+					break;
+			default:
+					cout<<"Not an proper choice.. Try Again....\n";
+					break;
+			
+		}
+		cout<<"Enter 1 to continue...\n";
+		cin>>ch;
+	}while(ch==1);
+	return 0;
+}
+yogesh@DESKTOP-1J8JGD6: /mnt/c/users/lenovo/desktop/Lab/ex2$ cat makefile
+List.exe: ListImp.o ListApp.o
+	g++ ListImp.o ListApp.o -o List.exe
+ListImp.o: ListImp.cpp
+	g++ -c ListImp.cpp
+ListApp.o: ListApp.cpp
+	g++ -c ListApp.cpp
+yogesh@DESKTOP-1J8JGD6: make
+make: 'List.exe' is up to date.
+yogesh@DESKTOP-1J8JGD6:./List.exe
+-----------------  OPERATIONS  -----------------
+    	1.INSERT AT FIRST              
+ 	2.INSERT AT LAST                
+	    	3.INSERT BEFORE GIVEN ELEMENT	        
+	    	4.INSERT AFTER GIVEN ELEMENT             
+	    	5.DELETE AT FIRST                         
+ 	6.DELETE BEFORE GIVEN ELEMENT	    
+	    	7.DELETE AFTER GIVEN ELEMENT	     
+ 	8.MAKE EMPTY				          
+	    	9.DISPLAY 
+--------------------------------------------------      
+Enter your Choice:1
+Enter the Real Number:1
+Enter the Imaginary Number:1
+Inserted As it is Empty.....
+Enter 1 to continue...
+1
+-----------------  OPERATIONS  -----------------
+    	1.INSERT AT FIRST              
+ 	2.INSERT AT LAST                
+	    	3.INSERT BEFORE GIVEN ELEMENT	        
+	    	4.INSERT AFTER GIVEN ELEMENT             
+	    	5.DELETE AT FIRST                         
+ 	6.DELETE BEFORE GIVEN ELEMENT	    
+	    	7.DELETE AFTER GIVEN ELEMENT	     
+ 	8.MAKE EMPTY				          
+	    	9.DISPLAY 
+--------------------------------------------------      
+Enter your Choice:2
+Enter the Real Number:2
+Enter the Imaginary Number:2
+Added at Last...
+Enter 1 to continue...
+1
+-----------------  OPERATIONS  -----------------
+    	1.INSERT AT FIRST              
+ 	2.INSERT AT LAST                
+	    	3.INSERT BEFORE GIVEN ELEMENT	        
+	    	4.INSERT AFTER GIVEN ELEMENT             
+	    	5.DELETE AT FIRST                         
+ 	6.DELETE BEFORE GIVEN ELEMENT	    
+	    	7.DELETE AFTER GIVEN ELEMENT	     
+ 	8.MAKE EMPTY				          
+	    	9.DISPLAY 
+--------------------------------------------------      
+Enter your Choice:9
+1 + 1i -> 2 + 2i
+Enter 1 to continue...
+1
+-----------------  OPERATIONS  -----------------
+    	1.INSERT AT FIRST              
+ 	2.INSERT AT LAST                
+	    	3.INSERT BEFORE GIVEN ELEMENT	        
+	    	4.INSERT AFTER GIVEN ELEMENT             
+	    	5.DELETE AT FIRST                         
+ 	6.DELETE BEFORE GIVEN ELEMENT	    
+	    	7.DELETE AFTER GIVEN ELEMENT	     
+ 	8.MAKE EMPTY				          
+	    	9.DISPLAY 
+--------------------------------------------------      
+Enter your Choice:3
+Enter the element to be searched for before insertion:
+Enter the Real Number:2
+Enter the Imaginary Number:2
+Enter the Element to be inserted:
+Enter the Real Number:3
+Enter the Imaginary Number:3
+Inserted Successfully....
+Enter 1 to continue...
+1
+-----------------  OPERATIONS  -----------------
+    	1.INSERT AT FIRST              
+ 	2.INSERT AT LAST                
+	    	3.INSERT BEFORE GIVEN ELEMENT	        
+	    	4.INSERT AFTER GIVEN ELEMENT             
+	    	5.DELETE AT FIRST                         
+ 	6.DELETE BEFORE GIVEN ELEMENT	    
+	    	7.DELETE AFTER GIVEN ELEMENT	     
+ 	8.MAKE EMPTY				          
+	    	9.DISPLAY 
+--------------------------------------------------      
+Enter your Choice:8 9
+1 + 1i -> 3 + 3i -> 2 + 2i
+Enter 1 to continue...
+1
+-----------------  OPERATIONS  -----------------
+    	1.INSERT AT FIRST              
+ 	2.INSERT AT LAST                
+	    	3.INSERT BEFORE GIVEN ELEMENT	        
+	    	4.INSERT AFTER GIVEN ELEMENT             
+	    	5.DELETE AT FIRST                         
+ 	6.DELETE BEFORE GIVEN ELEMENT	    
+	    	7.DELETE AFTER GIVEN ELEMENT	     
+ 	8.MAKE EMPTY				          
+	    	9.DISPLAY 
+--------------------------------------------------      
+Enter your Choice:4
+Enter the element to be searched for after insertion:
+Enter the Real Number:3
+Enter the Imaginary Number:3
+Enter the Element to be inserted:
+Enter the Real Number:5
+Enter the Imaginary Number:5
+Inserted Successfully....
+Enter 1 to continue...
+1
+-----------------  OPERATIONS  -----------------
+    	1.INSERT AT FIRST              
+ 	2.INSERT AT LAST                
+	    	3.INSERT BEFORE GIVEN ELEMENT	        
+	    	4.INSERT AFTER GIVEN ELEMENT             
+	    	5.DELETE AT FIRST                         
+ 	6.DELETE BEFORE GIVEN ELEMENT	    
+	    	7.DELETE AFTER GIVEN ELEMENT	     
+ 	8.MAKE EMPTY				          
+	    	9.DISPLAY 
+--------------------------------------------------      
+Enter your Choice:9
+1 + 1i -> 3 + 3i -> 5 + 5i -> 2 + 2i
+Enter 1 to continue...
+1
+-----------------  OPERATIONS  -----------------
+    	1.INSERT AT FIRST              
+ 	2.INSERT AT LAST                
+	    	3.INSERT BEFORE GIVEN ELEMENT	        
+	    	4.INSERT AFTER GIVEN ELEMENT             
+	    	5.DELETE AT FIRST                         
+ 	6.DELETE BEFORE GIVEN ELEMENT	    
+	    	7.DELETE AFTER GIVEN ELEMENT	     
+ 	8.MAKE EMPTY				          
+	    	9.DISPLAY 
+--------------------------------------------------      
+Enter your Choice:5
+Deleted Successfully....
+Enter 1 to continue...
+1
+-----------------  OPERATIONS  -----------------
+    	1.INSERT AT FIRST              
+ 	2.INSERT AT LAST                
+	    	3.INSERT BEFORE GIVEN ELEMENT	        
+	    	4.INSERT AFTER GIVEN ELEMENT             
+	    	5.DELETE AT FIRST                         
+ 	6.DELETE BEFORE GIVEN ELEMENT	    
+	    	7.DELETE AFTER GIVEN ELEMENT	     
+ 	8.MAKE EMPTY				          
+	    	9.DISPLAY 
+--------------------------------------------------      
+Enter your Choice:9
+3 + 3i -> 5 + 5i -> 2 + 2i
+Enter 1 to continue...
+1
+-----------------  OPERATIONS  -----------------
+    	1.INSERT AT FIRST              
+ 	2.INSERT AT LAST                
+	    	3.INSERT BEFORE GIVEN ELEMENT	        
+	    	4.INSERT AFTER GIVEN ELEMENT             
+	    	5.DELETE AT FIRST                         
+ 	6.DELETE BEFORE GIVEN ELEMENT	    
+	    	7.DELETE AFTER GIVEN ELEMENT	     
+ 	8.MAKE EMPTY				          
+	    	9.DISPLAY 
+--------------------------------------------------      
+Enter your Choice:6
+Enter the element to be searched for before deletion:
+Enter the Real Number:5
+Enter the Imaginary Number:5
+Deleted Successfully....
+Enter 1 to continue...
+1
+-----------------  OPERATIONS  -----------------
+    	1.INSERT AT FIRST              
+ 	2.INSERT AT LAST                
+	    	3.INSERT BEFORE GIVEN ELEMENT	        
+	    	4.INSERT AFTER GIVEN ELEMENT             
+	    	5.DELETE AT FIRST                         
+ 	6.DELETE BEFORE GIVEN ELEMENT	    
+	    	7.DELETE AFTER GIVEN ELEMENT	     
+ 	8.MAKE EMPTY				          
+	    	9.DISPLAY 
+--------------------------------------------------      
+Enter your Choice:9
+Segmentation fault (core dumped)
+exit
+exit
+
+Script done on 2021-02-19 07:31:07+0530

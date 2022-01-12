@@ -1,0 +1,508 @@
+Script started on 2021-02-22 20:19:06+05:30 [TERM="xterm-256color" TTY="/dev/tty1" COLUMNS="211" LINES="50"]
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex8[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex8[00m$ cat Heap.h
+#include<iostream>
+using namespace std;
+class Travel
+{
+	private:
+		int P_id;
+		string name;
+		string source;
+		string dest;
+		long amount;
+	public:
+		Travel();
+		Travel(int,string,string,string,long);
+		Travel(const Travel&);
+		void getInput();
+		void Display();
+		int getID();
+		bool operator>(Travel);
+		bool operator<(Travel);
+		bool operator==(Travel);
+		Travel operator=(Travel);
+		friend istream& operator>>(istream&,Travel&);
+		friend ostream& operator<<(ostream&,Travel&);
+	friend class BinHeap;
+};
+
+class BinHeap	//bin heap tree
+{
+	private:
+			Travel *arr;		//Details
+			int capacity;	//capcity of binary heap
+			int hsize;		//heap size
+	public:
+			BinHeap();				//default constructor
+			int isEmpty();			//check if heap is empty
+			int isFull();			//to check if heap is full
+			int enqueue(Travel);		//insert an element
+			Travel dequeue();			//remove an element (delete min)			
+			Travel findMin();			//find minimum element
+			int search(int);		//search an element
+			void displayHeap();		//display the heap
+};
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex8[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex8[00m$ cat h[KHeapImp.cpp
+#include"Heap.h"
+Travel::Travel()
+{
+	P_id=0;
+	name="";
+	source="";
+	dest="";
+	amount=0;
+}
+
+Travel::Travel(int p,string na,string s,string d,long amt)
+{
+	P_id=p;
+	name=na;
+	source=s;
+	dest=d;
+	amount=amt;
+}
+
+Travel::Travel(const Travel&t)
+{
+	P_id=t.P_id;
+	name=t.name;
+	source=t.source;
+	dest=t.dest;
+	amount=t.amount;
+}
+
+void Travel::Display()
+{
+	cout<<P_id<<name<<source<<dest<<amount;
+}
+
+int Travel::getID()
+{
+	return P_id;
+}
+istream& operator>>(istream &in,Travel &t)
+{
+		cout<<" Enter the p Id   : ";
+        in>>t.P_id;
+        cout<<" Enter the Name : ";
+        in>>t.name;
+        cout<<" Enter the Vechicle Type : ";
+        in>>t.source;
+
+		cout<<" Enter the Vechicle Type : ";
+        in>>t.dest;
+        cout<<" Enter the Amount_Of_Toll : ";
+        in>>t.amount;
+        return in;
+}
+
+ostream& operator<<(ostream &out,Travel &t)
+{
+		cout<<" Enter the p Id   : ";
+        out<<t.P_id;
+        cout<<"\n Name : ";
+        out<<t.name;
+        cout<<"\n Source : ";
+        out<<t.source;
+		cout<<"\n Destination : ";
+        out<<t.dest;
+        cout<<"\nAmount : ";
+        out<<t.amount;
+        return out;
+}
+
+bool Travel::operator>(Travel t1)
+{
+	return (getID()>t1.getID());
+}
+bool Travel::operator<(Travel t1)
+{
+        return (getID()<t1.getID());
+}
+bool Travel::operator==(Travel j)
+{
+	if(getID()==j.getID())
+	    return true;
+	return false;
+}
+Travel Travel::operator=(Travel x)
+{
+	P_id=x.P_id;
+	name=x.name;
+	source=x.source;
+	dest=x.dest;
+	amount=x.amount;
+	return *this;
+}
+
+BinHeap::BinHeap()
+{
+	hsize=0;
+	capacity=10;
+	arr=new Travel[capacity+1];
+}
+
+int BinHeap::isFull()
+{
+	return (capacity==hsize);
+}
+
+int BinHeap::isEmpty()
+{
+	return (hsize==0);
+}
+
+int BinHeap::enqueue(Travel ins)	//insert an element
+{
+	//ins - element to insert
+	if(isFull())
+		return -1;	//heap is full
+	else
+	{
+		int ctnode=++hsize;
+		while(ctnode!=1 && arr[ctnode/2].P_id > ins.P_id)	//if parent acc_num is greater than acc_num of element to insert
+		{
+			arr[ctnode]=arr[ctnode/2];
+			ctnode/=2;
+		}
+		arr[ctnode]=ins;
+		return 1;	//success
+	}
+}
+
+Travel BinHeap::dequeue()			//remove an element (delete min)
+{
+	if(isEmpty())
+	{
+		Travel temp;
+		return temp;
+	}
+	else
+	{
+		Travel temp=arr[1];	//first element (starts from 1) to return
+		Travel last=arr[hsize--];
+		int low_child=2;	//assuming left child as low_child 
+		int ctnode=1;
+		while(low_child<=hsize)
+		{
+			if(low_child<hsize && arr[low_child].P_id>arr[low_child+1].P_id)	//R-Child is min
+				low_child++;	//changing low_child to right child since it is min than Left child
+
+			if(last.P_id<=arr[low_child].P_id)	//last element replaced is the min element
+				break;
+
+			arr[ctnode]=arr[low_child];	//swapping parent with low_child
+			ctnode=low_child;	//considering the low_child
+			low_child*=2;	//assuming left child as low_child 
+		}
+		arr[ctnode]=last;
+		return temp;
+	}
+}
+
+
+Travel BinHeap::findMin()
+{
+	if(!isEmpty())
+	{
+		return arr[1];
+	}
+	else
+	{
+		Travel temp;
+		return temp;
+	}
+}
+
+int BinHeap::search(int id)
+{
+	int i;
+	for(i=1;i<=hsize;i++)
+		if(arr[i].P_id==id)
+			return 1;
+	return 0;
+}
+
+void BinHeap::displayHeap()
+{
+	if(isEmpty())
+		cout<<"Empty nothing to display\n";
+	else
+	{
+		for(int i=1;i<=hsize;i++)
+			cout<<arr[i];
+	}
+}
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex8[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex8[00m$ cat Heaq[KpApp.cpp
+#include"Heap.h"
+int main()
+{
+	int ch,a,id;
+	BinHeap b;
+	Travel T,T1;
+	do
+	{
+		cout<<"Enter"<<endl;
+		cout<<"		1:Check for empty"<<endl;
+		cout<<"		2:Insert a TravelPoint"<<endl;
+		cout<<"		3:Delete a TravelPoint"<<endl;
+		cout<<"		4:Find the min TravelPoint"<<endl;
+		cout<<"		5:Search a TravelPoint"<<endl;
+		cout<<"		6:Display All TravelPoint"<<endl;
+		cout<<"		7.Exit"<<endl;
+		cout<<"Enter your choice:";
+		cin>>ch;
+		if(ch==1)
+		{
+			a=b.isEmpty();
+			if(a==1)
+				cout<<"Empty..\n";
+			else
+				cout<<"Not Empty...\n";
+		}
+		else if(ch==2)
+		{
+			cout<<"Enter details to insert...\n";
+			cin>>T;
+			a=b.enqueue(T);
+			if(a==1)
+				cout<<"Inserted Successfully..\n";
+			else
+				cout<<"Not Inserted...\n";
+		}
+		else if(ch==3)
+		{
+			T=b.dequeue();
+			if(T.getID()==0)
+				cout<<"Empty... Nothing to delete \n";
+			else
+			{
+				cout<<"Deleted Element is:";
+				cout<<endl;
+				cout<<T;
+			}
+		}
+		else if(ch==4)
+		{
+			T=b.findMin();
+			cout<<"Minimum Element is:";
+			cout<<endl;
+			cout<<T;
+		}
+		else if(ch==5)
+		{
+			cout<<"Enter the P_ID to search:";
+			cin>>id;
+			a=b.search(id);
+			if(a==1)
+				cout<<"Element found \n";
+			else
+				cout<<"Element not found \n";
+		}
+		else if(ch==6)
+		{
+			b.displayHeap();
+		}
+		else if(ch==7)
+			return 0;
+		else
+			cout<<"Enter a valid option ... Try Again !!! \n";
+	}while(ch!=7);
+}]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex8[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex8[00m$ cat makwe[K[Kefile
+BinHeap.exe: HeapImp.o HeapApp.o
+	g++ HeapImp.o HeapApp.o -o BinHeap.exe
+HeapImp.o: HeapImp.cpp
+	g++ -c HeapImp.cpp
+HeapApp.o: HeapApp.cpp
+	g++ -c HeapApp.cpp
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex8[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex8[00m$ ./BinHeap.exe
+Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Delete a TravelPoint
+		4:Find the min TravelPoint
+		5:Search a TravelPoint
+		6:Display All TravelPoint
+		7.Exit
+Enter your choice:1
+Empty..
+Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Delete a TravelPoint
+		4:Find the min TravelPoint
+		5:Search a TravelPoint
+		6:Display All TravelPoint
+		7.Exit
+Enter your choice:2
+Enter details to insert...
+ Enter the p Id   : 3
+ Enter the Name : 3
+ Enter the Vechicle Type : 3
+ Enter the Vechicle Type : 3
+ Enter the Amount_Of_Toll : 3
+Inserted Successfully..
+Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Delete a TravelPoint
+		4:Find the min TravelPoint
+		5:Search a TravelPoint
+		6:Display All TravelPoint
+		7.Exit
+Enter your choice:2
+Enter details to insert...
+ Enter the p Id   : 1
+ Enter the Name : 1
+ Enter the Vechicle Type : 1
+ Enter the Vechicle Type : 1
+ Enter the Amount_Of_Toll : 1
+Inserted Successfully..
+Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Delete a TravelPoint
+		4:Find the min TravelPoint
+		5:Search a TravelPoint
+		6:Display All TravelPoint
+		7.Exit
+Enter your choice:2
+Enter details to insert...
+ Enter the p Id   : 2
+ Enter the Name : 2
+ Enter the Vechicle Type : 2
+ Enter the Vechicle Type : 2
+ Enter the Amount_Of_Toll : 2
+Inserted Successfully..
+Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Delete a TravelPoint
+		4:Find the min TravelPoint
+		5:Search a TravelPoint
+		6:Display All TravelPoint
+		7.Exit
+Enter your choice:6
+ Enter the p Id   : 1
+ Name : 1
+ Source : 1
+ Destination : 1
+Amount : 1 Enter the p Id   : 3
+ Name : 3
+ Source : 3
+ Destination : 3
+Amount : 3 Enter the p Id   : 2
+ Name : 2
+ Source : 2
+ Destination : 2
+Amount : 2Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Delete a TravelPoint
+		4:Find the min TravelPoint
+		5:Search a TravelPoint
+		6:Display All TravelPoint
+		7.Exit
+Enter your choice:4
+Minimum Element is:
+ Enter the p Id   : 1
+ Name : 1
+ Source : 1
+ Destination : 1
+Amount : 1Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Delete a TravelPoint
+		4:Find the min TravelPoint
+		5:Search a TravelPoint
+		6:Display All TravelPoint
+		7.Exit
+Enter your choice:5
+Enter the P_ID to search:5
+Element not found 
+Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Delete a TravelPoint
+		4:Find the min TravelPoint
+		5:Search a TravelPoint
+		6:Display All TravelPoint
+		7.Exit
+Enter your choice:5
+Enter the P_ID to search:2
+Element found 
+Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Delete a TravelPoint
+		4:Find the min TravelPoint
+		5:Search a TravelPoint
+		6:Display All TravelPoint
+		7.Exit
+Enter your choice:3
+Deleted Element is:
+ Enter the p Id   : 1
+ Name : 1
+ Source : 1
+ Destination : 1
+Amount : 1Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Delete a TravelPoint
+		4:Find the min TravelPoint
+		5:Search a TravelPoint
+		6:Display All TravelPoint
+		7.Exit
+Enter your choice:3
+Deleted Element is:
+ Enter the p Id   : 2
+ Name : 2
+ Source : 2
+ Destination : 2
+Amount : 2Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Delete a TravelPoint
+		4:Find the min TravelPoint
+		5:Search a TravelPoint
+		6:Display All TravelPoint
+		7.Exit
+Enter your choice:3
+Deleted Element is:
+ Enter the p Id   : 3
+ Name : 3
+ Source : 3
+ Destination : 3
+Amount : 3Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Delete a TravelPoint
+		4:Find the min TravelPoint
+		5:Search a TravelPoint
+		6:Display All TravelPoint
+		7.Exit
+Enter your choice:3
+Empty... Nothing to delete 
+Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Delete a TravelPoint
+		4:Find the min TravelPoint
+		5:Search a TravelPoint
+		6:Display All TravelPoint
+		7.Exit
+Enter your choice:1
+Empty..
+Enter
+		1:Check for empty
+		2:Insert a TravelPoint
+		3:Delete a TravelPoint
+		4:Find the min TravelPoint
+		5:Search a TravelPoint
+		6:Display All TravelPoint
+		7.Exit
+Enter your choice:7
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex8[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex8[00m$ exit
+exit
+
+Script done on 2021-02-22 20:24:11+05:30 [COMMAND_EXIT_CODE="0"]

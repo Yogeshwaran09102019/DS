@@ -1,0 +1,403 @@
+Script started on 2021-02-19 14:45:34+05:30 [TERM="xterm-256color" TTY="/dev/tty1" COLUMNS="158" LINES="38"]
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5i[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5i[00m$ cat Stack.h
+#include<iostream>
+using namespace std;
+class Complex
+{
+	private:
+			int real; // Real Value
+			int imaginary; // Imaginary Value
+	public:
+			Complex();
+			Complex(int,int); // Constructors
+			Complex(const Complex&);
+			~Complex(); // Destructor
+			void gettInput(); // Get Input
+			void display(); // Display Complex Number
+	friend class Stack; // Stack is the friend of this class
+};
+
+class Node
+{
+	private:
+			Complex *c; // List of Complex Number
+			Node *next; // Self-Referencing pointer
+	public:
+			Node();
+			void getInput();
+	friend class Stack; // Stack is also friend of this class
+};
+
+class Stack
+{
+	private:
+			Node *top; // Top value of Stack
+	public:
+			Stack(); // Constructors 
+			Stack(Node*);
+			Stack(const Stack&);
+			~Stack(); // Destructor
+			int isEmpty(); // Empty or Not
+			int push(Node*); // Insert at Top
+			int pop(); // Delete at Top
+			int size(); // Current Size
+			Complex* peek(); // Peak Element of Stack
+			bool makeEmpty(); // Make Complete Stack Empty
+			void displayStack(); // Display all the Stack Content
+};
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5i[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5i[00m$ cat Stack.hI.hm.hp.h[C[C[Kcpp
+#include"Stack.h"
+
+Complex::Complex()
+{
+	real=imaginary=0;
+}
+Complex::Complex(int r,int i)
+{
+	real=r;
+	imaginary=i;
+}
+
+Complex::Complex(const Complex &c)
+{
+	real=c.real;
+	imaginary=c.imaginary;
+}
+
+Complex::~Complex()
+{
+	real=0;
+	imaginary=0;
+}
+
+void Complex::gettInput()
+{
+	cout<<"Enter the Real Number:";
+	cin>>real;
+	cout<<"Enter the Imaginary Number:";
+	cin>>imaginary;
+}
+
+void Complex::display()
+{
+	cout<<real<<" + "<<imaginary<<"i"<<endl;
+}
+
+Node::Node()
+{
+	c=new Complex();
+	next=NULL;
+}
+
+void Node::getInput()
+{
+	c->gettInput();
+}
+
+Stack::Stack()
+{
+	top=NULL;
+}
+
+Stack::Stack(Node *t)
+{
+	top=t;
+}
+
+Stack::Stack(const Stack &s)
+{
+	top=s.top;
+}
+
+Stack::~Stack()
+{
+	delete top;
+	top=NULL;
+}
+
+int Stack::isEmpty()
+{
+	if(top==NULL)
+		return 1;
+	else
+		return 0;
+}
+
+int Stack::push(Node *n)
+{
+	if(isEmpty())
+	{
+		top=n;
+	}
+	else
+	{
+		n->next=top;
+		top=n;
+	}
+	return 1;
+}
+
+int Stack::pop()
+{
+	if(isEmpty())
+		return 0;
+	else
+	{
+		Node *temp=top;
+		top=top->next;
+		delete temp;
+		temp=NULL;
+		return 1;
+	}
+}
+
+int Stack::size()
+{
+	int c=0;
+	if(isEmpty())
+		return c;
+	else
+	{
+		Node *temp=top;
+		while(temp!=NULL)
+		{
+			c++;
+			temp=temp->next;
+		}
+		return c;
+	}
+}
+
+Complex* Stack::peek()
+{
+	if(!isEmpty())
+		return top->c;
+}
+
+bool Stack::makeEmpty()
+{
+	int k=0;
+	while(!isEmpty())
+		k=pop();
+	if(isEmpty())
+		return true;
+	else
+		return false;
+}
+
+
+void Stack::displayStack()
+{
+	Node *temp=top;
+	if(isEmpty())
+		cout<<"Stack Empty ... Nothing to Display..\n";
+	else
+	{
+		while(temp->next!=NULL)
+		{
+			cout<<temp->c->real<<" + "<<temp->c->imaginary<<"i"<<" -> ";
+			temp=temp->next;
+		}
+	cout<<temp->c->real<<" + "<<temp->c->imaginary<<"i"<<endl;
+	}
+}
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5i[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5i[00m$ cat StackImp.cpp[1P.cpp[1P.cpp[1P.cppA.cppp.cppp.cpp
+#include"Stack.h"
+int main()
+{
+	Stack s,s1;
+	Node *n;
+	Complex *c;
+	int ch; bool x; char ch1;
+	int c1=0;
+	do
+	{
+		cout<<"Enter \n";
+		cout<<"		1IsEmpty \n";
+		cout<<"		2.Insert a number \n";
+		cout<<"		3.Delete a number \n";
+		cout<<"		4.Size \n";
+		cout<<"		5.Peak \n";
+		cout<<"		6.MakeEmpty \n";
+		cout<<"		7.Display \n";
+		cout<<"Enter your Choice:";
+		cin>>ch;
+		cout<<endl;
+		switch(ch)
+		{
+			case 1:
+					c1=s.isEmpty();
+					if(c1==1)
+						cout<<"\nStack Empty...\n";
+					else
+						cout<<"Stack has some Elements..\n";
+					break;
+			case 2:
+					n=new Node();
+					n->getInput();
+					c1=s.push(n);
+					if(c1==1)
+						cout<<"\nSuccess....\n";
+					else
+						cout<<"Not Inserted....\n";
+					break;
+			case 3:
+					c1=s.pop();
+					if(c1==1)
+						cout<<"\nDeletion Success....\n";
+					else
+						cout<<"Not Deleted....\n";
+					break;
+			case 4:
+					c1=s.size();
+					cout<<"\nSize of Stack:"<<c1<<endl;
+					break;
+			case 5:
+					c=s.peek();
+					cout<<"\nThe Peak Element is:";
+					c->display();
+					break;
+			case 6:
+					x=s.makeEmpty();
+					if(x==true)
+						cout<<"Stack Emptied..\n";
+					else
+						cout<<"Stack not Emptied...\n";
+					break;
+			case 7:
+					s.displayStack();
+					break;
+			default:
+					cout<<"Wrong Input... Try Again!!!\n";
+					break;
+		}
+	cout<<"Enter 'y' to continue...\n";
+	cin>>ch1;
+	}while(ch1=='y');
+	return 0;
+}
+					]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5i[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5i[00m$ cat mae[Kkefile
+Stack.exe: StackImp.o StackApp.o
+	g++ StackImp.o StackApp.o -o Stack.exe
+StackImp.o: StackImp.cpp
+	g++ -c StackImp.cpp
+StackApp.o: StackApp.cpp
+	g++ -c StackApp.cpp
+
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5i[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5i[00m$ ./Stack.exe
+Enter 
+		1IsEmpty 
+		2.Insert a number 
+		3.Delete a number 
+		4.Size 
+		5.Peak 
+		6.MakeEmpty 
+		7.Display 
+Enter your Choice:1
+
+
+Stack Empty...
+Enter 'y' to continue...
+y
+Enter 
+		1IsEmpty 
+		2.Insert a number 
+		3.Delete a number 
+		4.Size 
+		5.Peak 
+		6.MakeEmpty 
+		7.Display 
+Enter your Choice:2
+
+Enter the Real Number:1
+Enter the Imaginary Number:1
+
+Success....
+Enter 'y' to continue...
+y
+Enter 
+		1IsEmpty 
+		2.Insert a number 
+		3.Delete a number 
+		4.Size 
+		5.Peak 
+		6.MakeEmpty 
+		7.Display 
+Enter your Choice:2
+
+Enter the Real Number:2
+Enter the Imaginary Number:2
+
+Success....
+Enter 'y' to continue...
+y
+Enter 
+		1IsEmpty 
+		2.Insert a number 
+		3.Delete a number 
+		4.Size 
+		5.Peak 
+		6.MakeEmpty 
+		7.Display 
+Enter your Choice:7
+
+2 + 2i -> 1 + 1i
+Enter 'y' to continue...
+y
+Enter 
+		1IsEmpty 
+		2.Insert a number 
+		3.Delete a number 
+		4.Size 
+		5.Peak 
+		6.MakeEmpty 
+		7.Display 
+Enter your Choice:3
+
+
+Deletion Success....
+Enter 'y' to continue...
+y
+Enter 
+		1IsEmpty 
+		2.Insert a number 
+		3.Delete a number 
+		4.Size 
+		5.Peak 
+		6.MakeEmpty 
+		7.Display 
+Enter your Choice:7
+
+1 + 1i
+Enter 'y' to continue...
+y
+Enter 
+		1IsEmpty 
+		2.Insert a number 
+		3.Delete a number 
+		4.Size 
+		5.Peak 
+		6.MakeEmpty 
+		7.Display 
+Enter your Choice:6
+
+Stack Emptied..
+Enter 'y' to continue...
+y
+Enter 
+		1IsEmpty 
+		2.Insert a number 
+		3.Delete a number 
+		4.Size 
+		5.Peak 
+		6.MakeEmpty 
+		7.Display 
+Enter your Choice:7
+
+Stack Empty ... Nothing to Display..
+Enter 'y' to continue...
+n
+]0;yogesh@Yogesh: /mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5i[01;32myogesh@Yogesh[00m:[01;34m/mnt/c/Users/yogeshwaran/desktop/pgms/lab/ex5/ex5i[00m$ exit
+exit
+
+Script done on 2021-02-19 14:46:44+05:30 [COMMAND_EXIT_CODE="0"]

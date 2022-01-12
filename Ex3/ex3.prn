@@ -1,0 +1,523 @@
+Script started on 2021-02-19 07:31:25+0530
+$ cat Stack.h
+#include<iostream>
+using namespace std;
+class Complex
+{
+	private:
+			int real; // To store Real Value
+			int imaginary; // To store Imaginary Value
+	public:
+			Complex();
+			Complex(int,int); // Constructors
+			Complex(const Complex&);
+			~Complex(); // Destructor
+			void getInput(); // Get Input 
+			void display(); // Display Single Complex Number
+	friend class Stack; // Stack class is a friend of this Class
+};
+
+class Stack
+{
+	private:
+			Complex *data; // A complete array of Complex data
+			int top; // Top value of Stack
+			int capacity; // Total Capacity of Stack
+	public:
+			Stack(); // Constructors
+			Stack(Complex*,int,int);
+			Stack(const Stack&);
+			~Stack(); // Destructor
+			int isEmpty(); // To check whether the Stack is Empty or not
+			int isFull(); // To check whether Stack is Full or not
+			int push(Complex); // Insert at top 
+			Complex pop(); // Delete at top
+			int size(); // Current Size of the Stack
+			Complex peek(); // Peak Value of the stack
+			bool makeEmpty(); // Make Stack Empty
+			void displayStack(); // Display Elements of the Stack
+};
+
+#include"Stack.h"
+Complex::Complex()
+{
+	real=0;
+	imaginary=0;
+}
+
+Complex::Complex(int r,int i)
+{
+	real=r;
+	imaginary=i;
+}
+
+Complex::Complex(const Complex &c)
+{
+	real=c.real;
+	imaginary=c.imaginary;
+}
+
+Complex::~Complex()
+{
+	real=0;
+	imaginary=0;
+}
+
+void Complex::getInput()
+{
+	cout<<"\nEnter the Real Number:";
+	cin>>real;
+	cout<<"\nEnter the Imaginary Number:";
+	cin>>imaginary;
+}
+
+void Complex::display()
+{
+	cout<<real<<" + "<<imaginary<<"i";
+}
+
+Stack::Stack()
+{
+	data=NULL;
+	top=capacity=0;
+}
+
+Stack::Stack(Complex *c1,int t,int cap)
+{
+	data[cap];
+	for(int i=0;i<t;i++)
+		data[i]=c1[i];
+	top=t;
+	capacity=cap;
+}
+
+Stack::Stack(const Stack &s)
+{
+	data[s.capacity];
+	for(int i=0;i<s.top;i++)
+		data[i]=s.data[i];
+	top=s.top;
+	capacity=s.capacity;
+}
+
+Stack::~Stack()
+{
+	top=capacity=0;
+	delete data;
+	data=NULL;
+}
+
+int Stack::isEmpty()
+{
+	if(top==0)
+		return 1;
+	else
+		return 0;
+}
+
+int Stack::isFull()
+{
+	if(top==capacity-1)
+		return 1;
+	else
+		return 0;
+}
+
+int Stack::push(Complex c)
+{
+	if(!isFull())
+	{
+		data[top]=c;
+		top++;
+		return 1;
+	}
+	else
+		return 0;
+}
+
+Complex Stack::pop()
+{
+	if(!isEmpty())
+	{
+		Complex c;
+		c=data[top-1];
+		data[top]=Complex();
+		top--;
+		return c;
+	}
+	else
+		cout<<"It is Empty... Deletion not Possible!!!\n";
+}
+
+int Stack::size()
+{
+	return top;
+}
+
+Complex Stack::peek()
+{
+	return data[top-1];
+}
+
+bool Stack::makeEmpty()
+{
+	Complex temp;
+	while(!isEmpty())
+	{
+		temp=pop();
+	}
+	if(isEmpty())
+		return true;
+	else
+		return false;
+}
+
+
+void Stack::displayStack()
+{
+	if(isEmpty())
+		cout<<"Empty Stack nothing to Display...\n";
+	else
+	{
+	int i;
+	for(i=0;i<top-1;i++)
+		cout<<data[i].real<<" + "<<data[i].imaginary<<"i"<<" -> ";
+	cout<<data[i].real<<" + "<<data[i].imaginary<<"i"<<endl;
+	}
+}
+$ cat stackapp.cpp
+#include"Stack.h"
+int main()
+{
+	int t,cap,c=0;
+	bool x;
+	char ch1;
+	Complex c1,c2,c3;
+	cout<<"Enter the Capacity:";
+	cin>>cap;
+	cout<<"\nEnter the top Value:";
+	cin>>t;
+	cout<<"\nEnter the elements:";
+	Complex *c11=new Complex[cap];
+	for(int i=0;i<t;i++)
+		c11[i].getInput();
+	Stack s(c11,t,cap);
+	int ch;
+	do
+	{
+		cout<<"Enter \n";
+		cout<<"		1.IsFull \n";
+		cout<<"		2.IsEmpty \n";
+		cout<<"		3.Push \n";
+		cout<<"		4.Pop \n";
+		cout<<"		5.Size \n";
+		cout<<"		6.Peak \n";
+		cout<<"		7.MakeEmpty \n";
+		cout<<"		8.Display \n";
+		cout<<"Enter your Choice:";
+		cin>>ch;
+		cout<<endl;
+		switch(ch)
+		{
+			case 1:
+					c=s.isFull();
+					if(c==1)
+						cout<<"The Stack is Full...\n";
+					else
+						cout<<"The Stack is not Full...\n";
+					break;
+			case 2:
+					c=s.isEmpty();
+					if(c==1)
+						cout<<"The Stack is Empty...\n";
+					else
+						cout<<"The Stack is not Empty...\n";
+					break;
+			case 3:
+					cout<<"Enter the new Complex Number to insert:";
+					c1.getInput();
+					c=s.push(c1);
+					if(c==1)
+						cout<<"Inserted Successfully...\n";
+					else
+						cout<<"Not Success....\n";
+					break;
+			case 4:
+					c2=s.pop();
+					cout<<"\nThe deleted item is:";
+					c2.display();
+					cout<<endl;
+					break;
+			case 5:
+					c=s.size();
+					cout<<"The Size of Stack:"<<c<<endl;
+					break;
+			case 6:
+					c3=s.peek();
+					c3.display();
+					break;
+			case 7:
+					x=s.makeEmpty();
+					if(x==true)
+						cout<<"Stack Emptied...\n";
+					else
+						cout<<"Stack is Not Emptied...\n";
+					break;
+			case 8:
+					s.displayStack();
+					break;
+			default:
+					cout<<"Wrong Input.... Try Again!!!\n";
+					break;
+		}
+		cout<<"Enter 'y' to continue...\n";
+		cin>>ch1;
+	}while(ch1=='y');		
+return 0;
+}
+$ cat makefile
+Stack.exe: StackImp.o StackApp.o
+	g++ StackImp.o StackApp.o -o Stack.exe
+StackImp.o: StackImp.cpp
+	g++ -c StackImp.cpp
+StackApp.o: StackApp.cpp
+	g++ -c StackApp.cpp
+
+yogesh@Desktop: ./Stack.exe
+
+Enter the Capacity:5
+
+Enter the top Value:1
+
+Enter the elements:
+Enter the Real Number:1
+
+Enter the Imaginary Number:1
+Enter 
+		1.IsFull 
+		2.IsEmpty 
+		3.Push 
+		4.Pop 
+		5.Size 
+		6.Peak 
+		7.MakeEmpty 
+		8.Display 
+Enter your Choice:8
+
+1 + 1i
+Enter 'y' to continue...
+1 y
+Enter 
+		1.IsFull 
+		2.IsEmpty 
+		3.Push 
+		4.Pop 
+		5.Size 
+		6.Peak 
+		7.MakeEmpty 
+		8.Display 
+Enter your Choice:1
+
+The Stack is not Full...
+Enter 'y' to continue...
+1 y
+Enter 
+		1.IsFull 
+		2.IsEmpty 
+		3.Push 
+		4.Pop 
+		5.Size 
+		6.Peak 
+		7.MakeEmpty 
+		8.Display 
+Enter your Choice:2
+
+The Stack is not Empty...
+Enter 'y' to continue...
+y
+Enter 
+		1.IsFull 
+		2.IsEmpty 
+		3.Push 
+		4.Pop 
+		5.Size 
+		6.Peak 
+		7.MakeEmpty 
+		8.Display 
+Enter your Choice:3
+
+Enter the new Complex Number to insert:
+Enter the Real Number:2
+
+Enter the Imaginary Number:2
+Inserted Successfully...
+Enter 'y' to continue...
+y
+Enter 
+		1.IsFull 
+		2.IsEmpty 
+		3.Push 
+		4.Pop 
+		5.Size 
+		6.Peak 
+		7.MakeEmpty 
+		8.Display 
+Enter your Choice:8
+
+1 + 1i -> 2 + 2i
+Enter 'y' to continue...
+3 y
+Enter 
+		1.IsFull 
+		2.IsEmpty 
+		3.Push 
+		4.Pop 
+		5.Size 
+		6.Peak 
+		7.MakeEmpty 
+		8.Display 
+Enter your Choice:3
+
+Enter the new Complex Number to insert:
+Enter the Real Number:3
+
+Enter the Imaginary Number:3
+Inserted Successfully...
+Enter 'y' to continue...
+y
+Enter 
+		1.IsFull 
+		2.IsEmpty 
+		3.Push 
+		4.Pop 
+		5.Size 
+		6.Peak 
+		7.MakeEmpty 
+		8.Display 
+Enter your Choice:8
+
+1 + 1i -> 2 + 2i -> 3 + 3i
+Enter 'y' to continue...
+y
+Enter 
+		1.IsFull 
+		2.IsEmpty 
+		3.Push 
+		4.Pop 
+		5.Size 
+		6.Peak 
+		7.MakeEmpty 
+		8.Display 
+Enter your Choice:3
+
+Enter the new Complex Number to insert:
+Enter the Real Number:4
+
+Enter the Imaginary Number:4
+Inserted Successfully...
+Enter 'y' to continue...
+y
+Enter 
+		1.IsFull 
+		2.IsEmpty 
+		3.Push 
+		4.Pop 
+		5.Size 
+		6.Peak 
+		7.MakeEmpty 
+		8.Display 
+Enter your Choice:8
+
+1 + 1i -> 2 + 2i -> 3 + 3i -> 4 + 4i
+Enter 'y' to continue...
+y
+Enter 
+		1.IsFull 
+		2.IsEmpty 
+		3.Push 
+		4.Pop 
+		5.Size 
+		6.Peak 
+		7.MakeEmpty 
+		8.Display 
+Enter your Choice:4
+
+
+The deleted item is:4 + 4i
+Enter 'y' to continue...
+y
+Enter 
+		1.IsFull 
+		2.IsEmpty 
+		3.Push 
+		4.Pop 
+		5.Size 
+		6.Peak 
+		7.MakeEmpty 
+		8.Display 
+Enter your Choice:8
+
+1 + 1i -> 2 + 2i -> 3 + 3i
+Enter 'y' to continue...
+y
+Enter 
+		1.IsFull 
+		2.IsEmpty 
+		3.Push 
+		4.Pop 
+		5.Size 
+		6.Peak 
+		7.MakeEmpty 
+		8.Display 
+Enter your Choice:5
+
+The Size of Stack:3
+Enter 'y' to continue...
+y
+Enter 
+		1.IsFull 
+		2.IsEmpty 
+		3.Push 
+		4.Pop 
+		5.Size 
+		6.Peak 
+		7.MakeEmpty 
+		8.Display 
+Enter your Choice:6
+
+3 + 3iEnter 'y' to continue...
+y
+Enter 
+		1.IsFull 
+		2.IsEmpty 
+		3.Push 
+		4.Pop 
+		5.Size 
+		6.Peak 
+		7.MakeEmpty 
+		8.Display 
+Enter your Choice:7
+
+Stack Emptied...
+Enter 'y' to continue...
+y
+Enter 
+		1.IsFull 
+		2.IsEmpty 
+		3.Push 
+		4.Pop 
+		5.Size 
+		6.Peak 
+		7.MakeEmpty 
+		8.Display 
+Enter your Choice:8
+
+Empty Stack nothing to Display...
+Enter 'y' to continue...
+y n
+free(): invalid pointer
+Aborted (core dumped)
+]0;prusanu@DESKTOP-1J8JGD6: /mnt/c/users/lenovo/desktop/Lab/ex3[01;32mprusanu@DESKTOP-1J8JGD6[00m:[01;34m/mnt/c/users/lenovo/desktop/Lab/ex3[00m$ exit
+exit
+
+Script done on 2021-02-19 07:33:13+0530
